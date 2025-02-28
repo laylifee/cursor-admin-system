@@ -7,7 +7,7 @@
       <el-table-column prop="meta.icon" label="图标" min-width="180"></el-table-column>
       <el-table-column prop="meta.roles" label="角色" min-width="180"></el-table-column>
     </el-table>
-    <el-form :model="newRoute" @submit.prevent="addRoute">
+    <el-form class="el-form-wrapper" :model="newRoute" @submit.prevent="addRoute">
       <el-form-item label="路径">
         <el-input v-model="newRoute.path"></el-input>
       </el-form-item>
@@ -70,8 +70,15 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .route-management {
   padding: 20px;
+  background-color: #fff;
+  :deep(.el-form-wrapper) {
+    margin-top: 20px;
+    .el-form-item {
+      width: 400px;
+    }
+  }
 }
 </style>
