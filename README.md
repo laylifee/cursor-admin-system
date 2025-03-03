@@ -147,3 +147,24 @@ export default {
 - **提交规范**: 使用 Commitizen 和 commitlint 进行提交信息规范化管理。
 
 如有任何问题，请参考项目中的文档或联系项目维护者。
+
+### 六、文档优化建议
+
+```markdown
+## 新增优化建议
+
+- 添加单元测试（Vitest + Testing Library）
+- 实现自动化部署脚本
+- 添加可视化埋点方案
+- 引入前端监控（Sentry/BadJS）
+- 实现代码分割策略
+- 优化图表内存管理
+
+## 项目结构更新
+
+admin-system/
+├── tests/ # 测试目录
+├── cypress/ # E2E测试
+├── docker/ # Docker配置
+└── .github/ # CI/CD配置
+```

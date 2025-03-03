@@ -18,19 +18,21 @@
   position: relative;
   overflow: hidden;
 }
+// 合并重复的动画定义
+.fade-transform {
+  &-enter-active,
+  &-leave-active {
+    transition: all 0.3s cubic-bezier(0.55, 0, 0.1, 1);
+  }
 
-.fade-transform-leave-active,
-.fade-transform-enter-active {
-  transition: all 0.5s;
-}
+  &-enter-from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
 
-.fade-transform-enter-from {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
-.fade-transform-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
+  &-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
 }
 </style>
