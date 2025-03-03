@@ -26,3 +26,53 @@ export function validEmail(email) {
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   return reg.test(email)
 }
+
+// 定义一个函数，用于将数组转换为树形结构
+function arrayToTree(arr) {
+    // 定义一个递归函数，用于处理数组中的每个元素
+    function recursiveBuildTree(parent, children) {
+        // 遍历子节点数组
+        for (let i = 0; i < children.length; i++) {
+            // 获取当前子节点
+            const child = children[i];
+            // 创建一个新的子树节点
+            const newNode = {
+                id: child.id,
+                parentId: parent.id,
+                children: []
+            };
+            // 将新节点添加到父节点的子节点列表中
+            parent.children.push(newNode);
+            // 如果当前子节点还有子节点，则递归调用构建子树
+            if (child.children && child.children.length > 0) {
+                recursiveBuildTree(newNode, child.children);
+            }
+        }
+    }
+
+    // 创建一个根节点对象
+    const root = {
+        id: 'root',
+        parentId: null,
+        children: []
+    };
+
+    // 调用递归函数，构建树形结构
+    recursiveBuildTree(root, arr);
+
+    // 返回根节点的子节点数组，即树形结构的数组
+    return root.children;
+}
+
+// // 使用示例
+// const flatArray = [
+//     { id: 1, parentId: null },
+//     { id: 2, parentId: 1 },
+//     { id: 3, parentId: 1 },
+//     { id: 4, parentId: 2 },
+//     { id: 5, parentId: 2 },
+//     { id: 6, parentId: 3 }
+// ];
+
+// const treeArray = arrayToTree(flatArray);
+// console.log(treeArray);
