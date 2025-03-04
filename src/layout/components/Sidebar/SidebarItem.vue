@@ -80,6 +80,12 @@ const hasOneShowingChild = (children = [], parent) => {
   return false
 }
 
+// 通过当前对象判断是否有子路由
+const hasChild = (item) => {
+  return !!item.children && item.children.length > 0
+}
+
+
 const resolvePath = (routePath) => {
   if (isExternal(routePath)) {
     return routePath

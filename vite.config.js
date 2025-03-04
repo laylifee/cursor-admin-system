@@ -37,7 +37,8 @@ export default defineConfig(({ command, mode }) => {
       host: true,
       port: 3000,
       open: true,
-      cors: true
+      cors: true,
+      allowedHosts: ["ag91oy77-ycp60vsv-3avljwmqgn94.vcc3p.mcprev.cn"]
     },
 
     // CSS 配置
