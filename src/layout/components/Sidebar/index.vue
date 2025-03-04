@@ -7,10 +7,9 @@
         :background-color="variables.menuBg"
         :text-color="variables.menuText"
         :active-text-color="variables.menuActiveText"
-        :unique-opened="false"
         :collapse-transition="false"
-        collapse-mode="horizontal"
         mode="vertical"
+        :router="true"
       >
         <sidebar-item
           v-for="route in routes"

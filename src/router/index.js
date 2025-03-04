@@ -88,7 +88,7 @@ export const constantRoutes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.VITE_APP_BASE_URL),
+  history: createWebHistory(),
   routes: constantRoutes,
   scrollBehavior: () => ({ top: 0 })
 })
