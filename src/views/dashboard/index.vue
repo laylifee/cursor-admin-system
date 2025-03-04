@@ -80,6 +80,22 @@
         </el-card>
       </el-col>
     </el-row>
+
+    <!-- 富文本编辑器 -->
+    <el-row class="mt-4">
+      <el-col :span="24">
+        <el-card shadow="hover">
+          <template #header>
+            <div class="card-header-title">
+              <span>富文本编辑器</span>
+            </div>
+          </template>
+          <div class="h-[300px]">
+            <rich-text v-model="content" :config="editorConfig" />
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -88,6 +104,8 @@ import { ref, onMounted } from 'vue'
 import { User, ShoppingCart, Goods, Money } from '@element-plus/icons-vue'
 import LineChart from '@/components/Charts/LineChart.vue'
 import PieChart from '@/components/Charts/PieChart.vue'
+
+import { richText } from '@/components/Editor/index.vue'
 
 // 统计数据
 const statisticsData = [
@@ -221,7 +239,11 @@ const generateChartData = (range) => {
 const handleTimeRangeChange = (range) => {
   lineChartData.value = generateChartData(range)
 }
-
+// 富文本编辑器内容
+const content = ref('<p>初始内容</p>')
+const editorConfig = {
+  placeholder: '请输入文章内容...'
+}
 onMounted(() => {
   handleTimeRangeChange('week')
 })
