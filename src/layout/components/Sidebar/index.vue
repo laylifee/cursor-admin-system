@@ -9,22 +9,15 @@
         :active-text-color="variables.menuActiveText"
         :collapse-transition="false"
         mode="vertical"
-        :router="true"
       >
-        <sidebar-item
-          v-for="route in routes"
-          :key="route.path"
-          :item="route"
-          :base-path="route.path"
-          :is-collapse="isCollapse"
-        />
+        <sidebar-item v-for="route in routes" :key="route.path" :item="route" />
       </el-menu>
     </el-scrollbar>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/store/modules/app'
 import { constantRoutes } from '@/router'

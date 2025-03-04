@@ -91,7 +91,7 @@
             </div>
           </template>
           <div class="h-[300px]">
-            <rich-text v-model="content" :config="editorConfig" />
+            <!-- <rich-text v-model="content" :config="editorConfig" /> -->
           </div>
         </el-card>
       </el-col>
@@ -105,7 +105,7 @@ import { User, ShoppingCart, Goods, Money } from '@element-plus/icons-vue'
 import LineChart from '@/components/Charts/LineChart.vue'
 import PieChart from '@/components/Charts/PieChart.vue'
 
-import { richText } from '@/components/Editor/index.vue'
+// import { richText } from '@/components/RichEditor/index.vue'
 
 // 统计数据
 const statisticsData = [

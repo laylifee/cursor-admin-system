@@ -1,44 +1,43 @@
 <template>
-  <div v-if="!item.hidden">
-    <template
-      v-if="
-        hasOneShowingChild(item.children, item) &&
-        (!onlyOneChild.children || onlyOneChild.noShowingChildren) &&
-        !item.alwaysShow
-      "
+  <div>
+    <el-sub-menu
+      v-if="hasChildren(item) && !hasSingleChild(item)"
+      ref="subMenu"
+      :index="item.path"
+      popper-append-to-body
     >
-      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
-        <el-menu-item :index="resolvePath(onlyOneChild.path)">
-          <el-icon v-if="onlyOneChild.meta.icon">
-            <component :is="onlyOneChild.meta.icon" />
-          </el-icon>
-          <template #title>{{ onlyOneChild.meta.title }}</template>
-        </el-menu-item>
-      </app-link>
-    </template>
-
-    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" popper-append-to-body>
       <template #title>
         <el-icon v-if="item.meta && item.meta.icon">
           <component :is="item.meta.icon" />
         </el-icon>
         <span>{{ item.meta.title }}</span>
       </template>
-      <sidebar-item
-        v-for="child in item.children"
-        :key="child.path"
-        :is-collapse="isCollapse"
-        :item="child"
-        :base-path="resolvePath(child.path)"
-      />
+      <sidebar-item v-for="child in item.children" :key="child.path" :item="child" />
     </el-sub-menu>
+    <template v-else-if="hasSingleChild(item)">
+      <el-menu-item :index="item.children[0].path" @click="handleClick(item.children[0].path)">
+        <el-icon v-if="item.children[0].meta.icon">
+          <component :is="item.children[0].meta.icon" />
+        </el-icon>
+        <span>{{ item.children[0].meta.title }}</span>
+      </el-menu-item>
+    </template>
+    <template v-else>
+      <el-menu-item :index="item.path" @click="handleClick(item.path)">
+        <el-icon v-if="item.meta.icon">
+          <component :is="item.meta.icon" />
+        </el-icon>
+        <span>{{ item.meta.title }}</span>
+      </el-menu-item>
+    </template>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { isExternal } from '@/utils/validate'
-import AppLink from './Link.vue'
+import path from 'path-browserify'
 
 const props = defineProps({
   item: {
@@ -55,47 +54,17 @@ const props = defineProps({
   }
 })
 
-const onlyOneChild = ref(null)
+const router = useRouter()
 
-const hasOneShowingChild = (children = [], parent) => {
-  const showingChildren = children.filter((item) => {
-    if (item.hidden) {
-      return false
-    } else {
-      onlyOneChild.value = item
-      return true
-    }
-  })
-  console.log('showingChildren', showingChildren)
-  if (showingChildren.length === 1) {
-    return true
-  }
-
-  if (showingChildren.length === 0) {
-    console.log('parent', parent)
-    onlyOneChild.value = { ...parent, path: '', noShowingChildren: true }
-    return true
-  }
-
-  return false
+const hasChildren = (item) => {
+  return item.children && item.children.length > 0
 }
 
-// 通过当前对象判断是否有子路由
-const hasChild = (item) => {
-  return !!item.children && item.children.length > 0
+const hasSingleChild = (item) => {
+  return item.children && item.children.length === 1
 }
 
-
-const resolvePath = (routePath) => {
-  if (isExternal(routePath)) {
-    return routePath
-  }
-  if (isExternal(props.basePath)) {
-    return props.basePath
-  }
-  console.log(props.basePath ? props.basePath + '/' + routePath : routePa)
-  return props.basePath
-    ? (props.basePath === '/' ? '' : props.basePath) + '/' + routePath
-    : routePath
+const handleClick = (path) => {
+  router.push(path)
 }
 </script>
