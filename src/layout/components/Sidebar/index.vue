@@ -83,13 +83,12 @@ const variables = {
   }
 
   :deep(.el-menu-item) {
+    &:hover {
+      background-color: #263445 !important;
+    }
     &.is-active {
       background-color: #1890ff !important;
       color: #ffffff !important;
-    }
-
-    &:hover {
-      background-color: #263445 !important;
     }
   }
 
