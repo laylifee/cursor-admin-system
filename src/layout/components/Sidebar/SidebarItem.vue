@@ -37,20 +37,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { isExternal } from '@/utils/validate'
-import path from 'path-browserify'
 
 const props = defineProps({
   item: {
     type: Object,
     required: true
-  },
-  basePath: {
-    type: String,
-    default: ''
-  },
-  isCollapse: {
-    type: Boolean,
-    default: false
   }
 })
 

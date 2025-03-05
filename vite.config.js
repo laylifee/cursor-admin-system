@@ -2,7 +2,6 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import { viteMockServe } from 'vite-plugin-mock'
-import path from 'path-browserify'
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
   // 根据当前工作目录中的 `mode` 加载 .env 文件
@@ -27,8 +26,7 @@ export default defineConfig(({ command, mode }) => {
     // 路径解析配置
     resolve: {
       alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url)),
-        path: 'path-browserify'
+        '@': fileURLToPath(new URL('./src', import.meta.url))
       },
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },

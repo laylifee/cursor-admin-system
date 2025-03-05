@@ -22,23 +22,11 @@ const breadcrumbs = ref([])
 const getBreadcrumb = () => {
   let matched = route.matched.filter((item) => item.meta && item.meta.title)
   const first = matched[0]
-  console.log('matched', matched)
-  console.log('route', route)
 
   // 如果第一个匹配的路径不是以 '/dashboard' 开头，则在面包屑中添加首页
   if (!first?.path.startsWith('/dashboard')) {
     matched = [{ path: '/dashboard', meta: { title: '首页' } }].concat(matched)
   }
-
-  // 处理只有一个子菜单的情况
-  matched = matched.reduce((acc, item) => {
-    if (item.children && item.children.length === 1) {
-      acc.push(item.children[0])
-    } else {
-      acc.push(item)
-    }
-    return acc
-  }, [])
 
   breadcrumbs.value = matched
 }
