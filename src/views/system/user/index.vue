@@ -4,14 +4,13 @@
       <template #header>
         <div class="card-header">
           <span>用户列表</span>
-          <el-button type="primary" @click="handleAdd">新增用户</el-button>
+          <el-button type="primary" @click="showAddUserDialog">新增用户</el-button>
         </div>
       </template>
 
       <el-table :data="tableData" style="width: 100%" v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="姓名" width="120" />
-        <el-table-column prop="username" label="用户名" width="120" />
         <el-table-column prop="roles" label="角色">
           <template #default="{ row }">
             <el-tag v-for="role in row.roles" :key="role" class="mr-1">
@@ -19,21 +18,81 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="introduction" label="简介" />
+        <el-table-column prop="age" label="年龄" width="80" />
+        <el-table-column prop="gender" label="性别" width="80" />
+        <el-table-column prop="phone" label="手机号" width="150" />
+        <el-table-column prop="email" label="邮箱" width="150" />
+        <el-table-column prop="avatar" label="头像" width="150"></el-table-column>
+        <el-table-column prop="status" label="状态" width="80">
+          <template #default="{ row }">
+            <el-tag :type="row.status === '启用' ? 'success' : 'danger'">{{ row.status }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="remark" label="简介" />
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+            <el-button :loading="isDeleting" type="danger" link @click="handleDelete(row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
 
       <div class="pagination-container">
-        <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[10, 20, 30, 50]"
-          :total="total" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
-          @current-change="handleCurrentChange" />
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 30, 50]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
       </div>
     </el-card>
+
+    <el-dialog v-model="addUserDialogVisible" :title="dialogTitle">
+      <el-form :model="addUserForm" :rules="rules" ref="addUserFormRef" label-width="100px">
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="addUserForm.name" style="width: 200px" />
+        </el-form-item>
+        <el-form-item label="年龄" prop="age">
+          <el-input v-model="addUserForm.age" style="width: 200px" />
+        </el-form-item>
+        <el-form-item label="性别" prop="gender">
+          <el-select v-model="addUserForm.gender" style="width: 200px">
+            <el-option label="男" value="男" />
+            <el-option label="女" value="女" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="addUserForm.phone" style="width: 200px" />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="addUserForm.email" style="width: 200px" />
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input type="password" v-model="addUserForm.password" style="width: 200px" />
+        </el-form-item>
+        <el-form-item label="头像" prop="avatar">
+          <el-input v-model="addUserForm.avatar" style="width: 200px" />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="addUserForm.status" style="width: 200px">
+            <el-option label="启用" value="启用" />
+            <el-option label="禁用" value="禁用" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="addUserForm.remark" style="width: 200px" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="addUserDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleAddUser">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -41,77 +100,131 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
-import { getAllUsers, addUser, deleteUser, updateUser, addUserBatch } from '@/utils/db/user';
+import { db } from '@/utils/dbConfig.js'
 
 const loading = ref(false)
 const tableData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
-import Mock from 'mockjs'
+const addUserDialogVisible = ref(false)
+const addUserForm = ref({
+  name: '',
+  age: '',
+  gender: '',
+  phone: '',
+  email: '',
+  password: '',
+  avatar: '',
+  status: '',
+  remark: ''
+})
+const addUserFormRef = ref(null)
+// 弹窗的title
+const dialogTitle = ref('新增用户')
+// 编辑当前行的数据
+const currentRow = ref(null)
+// 是否是编辑状态
+const isEdit = ref(false)
+// 是否正在删除
+const isDeleting = ref(false)
+const rules = {
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
+  gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
+  phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
+  email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+}
 
-// 定义一个异步函数 getList，用于获取用户列表数据
 const getList = async () => {
-  loading.value = true // 显示加载状态
+  loading.value = true
   try {
-    // 发起请求，获取用户列表数据
-    const res = await request({
-      url: '/user/list', // 请求的 URL
-      method: 'get', // 请求方法
-      params: {
-        page: currentPage.value, // 当前页码
-        limit: pageSize.value // 每页显示的数量
-      }
-    })
-    // 将获取到的数据赋值给 tableData 和 total
-    tableData.value = res.data.list
-    total.value = res.data.total
+    // const res = await request({
+    //   url: '/user/list',
+    //   method: 'get',
+    //   params: {
+    //     page: currentPage.value,
+    //     limit: pageSize.value
+    //   }
+    // })
+    // 查找用户表中的所有数据
+    const res = await db.users.toArray()
+    const count = await db.users.count()
+    tableData.value = res
+    total.value = count
   } catch (error) {
-    // 捕获请求错误，打印错误信息
     console.error('获取用户列表失败:', error)
   } finally {
-    // 无论请求成功或失败，都隐藏加载状态
     loading.value = false
   }
 }
 
-// 定义函数 handleSizeChange，用于处理每页显示数量变化时的逻辑
 const handleSizeChange = (val) => {
-  pageSize.value = val // 更新每页显示数量
-  getList() // 重新获取用户列表数据
+  pageSize.value = val
+  getList()
 }
 
-// 定义函数 handleCurrentChange，用于处理当前页码变化时的逻辑
 const handleCurrentChange = (val) => {
-  currentPage.value = val // 更新当前页码
-  getList() // 重新获取用户列表数据
+  currentPage.value = val
+  getList()
 }
 
-// 定义函数 handleAdd，用于处理新增用户的逻辑
-const handleAdd = () => {
-  ElMessage.info('新增用户功能开发中') // 弹出提示信息
+const showAddUserDialog = () => {
+  addUserDialogVisible.value = true
 }
 
-// 定义函数 handleEdit，用于处理编辑用户的逻辑
-const handleEdit = (row) => {
-  ElMessage.info('编辑用户功能开发中') // 弹出提示信息
-}
-
-// 定义函数 handleDelete，用于处理删除用户的逻辑
-const handleDelete = (row) => {
-  // 弹出确认框，询问用户是否确认删除
-  ElMessageBox.confirm('确认删除该用户吗？', '提示', {
-    confirmButtonText: '确定', // 确认按钮文本
-    cancelButtonText: '取消', // 取消按钮文本
-    type: 'warning' // 提示框类型
+const handleAddUser = () => {
+  addUserFormRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        if (isEdit.value) {
+          await db.users.update(currentRow.value.id, addUserForm.value)
+          ElMessage.success('编辑用户成功')
+          isEdit.value = false
+          dialogTitle.value = '新增用户'
+          addUserDialogVisible.value = false
+          getList()
+          return
+        }
+        const user = { ...addUserForm.value }
+        await db.users.add(user)
+        ElMessage.success('新增用户成功')
+        addUserDialogVisible.value = false
+        getList()
+      } catch (error) {
+        console.error('操作失败:', error)
+      }
+    }
   })
-    .then(() => {
-      // 用户点击确定后，弹出成功提示
+}
+
+const handleEdit = (row) => {
+  isEdit.value = true
+  dialogTitle.value = '编辑用户'
+  currentRow.value = { ...row }
+  addUserForm.value = { ...row }
+  addUserDialogVisible.value = true
+}
+
+const handleDelete = (row) => {
+  ElMessageBox.confirm('确认删除该用户吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(async () => {
+      isDeleting.value = true
+      await db.users.delete(row.id)
+      getList()
       ElMessage.success('删除成功')
     })
-    .catch(() => { }) // 用户点击取消时，不做任何处理
+    .catch(() => {})
+    .finally(() => {
+      isDeleting.value = false
+    })
 }
-
 
 onMounted(() => {
   getList()
@@ -120,7 +233,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .app-container {
-  padding: 16px; // 1rem to 16px
+  padding: 16px;
 
   .card-header {
     display: flex;
@@ -129,7 +242,7 @@ onMounted(() => {
   }
 
   .pagination-container {
-    margin-top: 16px; // 1rem to 16px
+    margin-top: 16px;
     display: flex;
     justify-content: flex-end;
   }
