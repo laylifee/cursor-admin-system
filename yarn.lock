@@ -1095,6 +1095,11 @@ detect-libc@^1.0.3:
   resolved "https://registry.npmmirror.com/detect-libc/-/detect-libc-1.0.3.tgz#fa137c4bd698edf55cd5cd02ac559f91a4c4ba9b"
   integrity sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==
 
+dexie-observable@^4.0.1-beta.13:
+  version "4.0.1-beta.13"
+  resolved "https://registry.npmmirror.com/dexie-observable/-/dexie-observable-4.0.1-beta.13.tgz#6b311222ad9ec612140c119f4f660a93d46a8c43"
+  integrity sha512-axmgPk7yjoPwj+0DdQIE5s1MBXi+6XcIFIjBKdQAmSGpsLQSth/LHvMOQ3q3Wj6pwIE5hqIxg2GL75sVqQbhEw==
+
 dexie@^4.0.11:
   version "4.0.11"
   resolved "https://registry.npmmirror.com/dexie/-/dexie-4.0.11.tgz#010a2c82dd35d40aa9a81c8d21951bfeb487b7d6"

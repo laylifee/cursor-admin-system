@@ -7,6 +7,22 @@
           <el-button type="primary" @click="showAddUserDialog">新增用户</el-button>
         </div>
       </template>
+      <table-search>
+        <template #form>
+          <el-form :model="searchForm" inline ref="searchFormRef" label-width="100px">
+            <el-form-item label="姓名" prop="name">
+              <el-input v-model="searchForm.name" style="width: 200px" />
+            </el-form-item>
+            <el-form-item label="年龄" prop="age">
+              <el-input v-model="searchForm.age" style="width: 200px" />
+            </el-form-item>
+          </el-form>
+        </template>
+        <template #buttons>
+          <el-button type="primary" @click="handleSearch">查询</el-button>
+          <el-button @click="handleReset">重置</el-button>
+        </template>
+      </table-search>
 
       <el-table :data="tableData" style="width: 100%" v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
@@ -101,13 +117,18 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { db } from '@/utils/dbConfig.js'
-
+import TableSearch from '@/components/TableSearch.vue'
 const loading = ref(false)
 const tableData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 const addUserDialogVisible = ref(false)
+const searchForm = ref({
+  name: '',
+  age: ''
+})
+const searchFormRef = ref(null)
 const addUserForm = ref({
   name: '',
   age: '',
@@ -141,19 +162,7 @@ const rules = {
 const getList = async () => {
   loading.value = true
   try {
-    // const res = await request({
-    //   url: '/user/list',
-    //   method: 'get',
-    //   params: {
-    //     page: currentPage.value,
-    //     limit: pageSize.value
-    //   }
-    // })
-    // 查找用户表中的所有数据
-    const res = await db.users.toArray()
-    const count = await db.users.count()
-    tableData.value = res
-    total.value = count
+    handleSearch()
   } catch (error) {
     console.error('获取用户列表失败:', error)
   } finally {
@@ -226,6 +235,30 @@ const handleDelete = (row) => {
     })
 }
 
+// 通过查询条件去查找数据
+const handleSearch = async () => {
+  const query = db.users
+    .filter((user) => {
+      const nameMatch =
+        !searchForm.value.name ||
+        searchForm.value.name === '' ||
+        user.name === searchForm.value.name
+      const ageMatch =
+        !searchForm.value.age || searchForm.value.age === '' || user.age === searchForm.value.age
+      return nameMatch && ageMatch
+    })
+    .offset((currentPage.value - 1) * pageSize.value)
+    .limit(pageSize.value)
+
+  tableData.value = await query.toArray()
+  total.value = await query.count()
+}
+// 重置查询条件
+const handleReset = () => {
+  searchFormRef.value.resetFields()
+  currentPage.value = 1
+  getList()
+}
 onMounted(() => {
   getList()
 })

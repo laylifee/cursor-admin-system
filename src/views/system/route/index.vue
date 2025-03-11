@@ -30,44 +30,9 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'RouteManagement',
-  data() {
-    return {
-      routes: this.$router.options.routes,
-      newRoute: {
-        path: '',
-        name: '',
-        meta: {
-          title: '',
-          icon: '',
-          roles: []
-        }
-      }
-    }
-  },
-  methods: {
-    addRoute() {
-      this.$router.addRoute({
-        path: this.newRoute.path,
-        name: this.newRoute.name,
-        component: () => import('@/views/error-page/404.vue'), // Placeholder component
-        meta: this.newRoute.meta
-      })
-      this.routes.push(this.newRoute)
-      this.newRoute = {
-        path: '',
-        name: '',
-        meta: {
-          title: '',
-          icon: '',
-          roles: []
-        }
-      }
-    }
-  }
-}
+<script setup>
+import { ref } from 'vue'
+import { db } from '@/utils/dbConfig.js'
 </script>
 
 <style lang="scss" scoped>
