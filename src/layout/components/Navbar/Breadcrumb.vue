@@ -61,13 +61,17 @@ watch(
 
 .breadcrumb-enter-active,
 .breadcrumb-leave-active {
-  transition: all 0.5s;
+  transition: all 0.3s;
 }
 
-.breadcrumb-enter-from,
-.breadcrumb-leave-active {
+.breadcrumb-enter-from {
   opacity: 0;
   transform: translateX(20px);
+}
+
+.breadcrumb-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
 }
 
 .breadcrumb-leave-active {

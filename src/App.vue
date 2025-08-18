@@ -1,6 +1,4 @@
-<script setup>
-import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-</script>
+<script setup></script>
 
 <template>
   <el-config-provider :locale="zhCn">

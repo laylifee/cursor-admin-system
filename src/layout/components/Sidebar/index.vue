@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/store/modules/app'
 import { constantRoutes } from '@/router'
@@ -41,7 +41,13 @@ const routes = computed(() => {
     return true
   })
 })
-
+const handleResize = () => {
+  if (window.innerWidth < 992) {
+    appStore.closeSidebar()
+  } else {
+    appStore.openSidebar()
+  }
+}
 const activeMenu = computed(() => {
   const { meta, path } = route
   if (meta?.activeMenu) {
@@ -55,6 +61,14 @@ const variables = {
   menuActiveText: '#409eff',
   menuBg: '#304156'
 }
+onMounted(() => {
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <style lang="scss" scoped>
@@ -75,8 +89,12 @@ const variables = {
 
   :deep(.el-menu--collapse) {
     width: 64px;
-    .el-sub-menu__title {
+    .el-sub-menu__title,
+    .el-menu-item {
       span {
+        display: none;
+      }
+      .el-sub-menu__icon-arrow {
         display: none;
       }
     }
