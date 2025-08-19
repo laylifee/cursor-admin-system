@@ -15,6 +15,9 @@
       <!-- 顶部导航栏 -->
       <Navbar />
 
+      <!-- 标签导航栏 -->
+      <TagsView />
+
       <!-- 主要内容区 -->
       <AppMain />
     </div>
@@ -22,17 +25,20 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, provide } from 'vue'
 import { useAppStore } from '@/store/modules/app'
 import Navbar from './components/Navbar/index.vue'
 import Sidebar from './components/Sidebar/index.vue'
 import AppMain from './components/AppMain/index.vue'
+import TagsView from './components/TagsView/index.vue'
 
 const appStore = useAppStore()
-const title = 'Admin System'
+const title = import.meta.env.VITE_APP_TITLE
 
 const isCollapse = computed(() => !appStore.sidebar.opened)
 const sidebarWidth = computed(() => (isCollapse.value ? '64px' : '210px'))
+provide('isCollapse', isCollapse)
+provide('sidebarWidth', sidebarWidth)
 </script>
 
 <style lang="scss" scoped>

@@ -55,13 +55,14 @@ const handleLogout = async () => {
   height: 48px; // 3rem to 48px
   overflow: hidden;
   background-color: white;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  // box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   position: fixed;
   top: 0;
   right: 0;
   width: calc(100% - 210px);
-  z-index: 1000;
+  z-index: 9;
   transition: width 0.28s;
+  box-sizing: border-box;
   &.is-collapse {
     width: calc(100% - 64px);
   }
@@ -74,17 +75,14 @@ const handleLogout = async () => {
     .hamburger-container {
       padding: 0 16px; // 1rem to 16px
       cursor: pointer;
-      line-height: 46px;
+      display: flex;
+      align-items: center;
       height: 100%;
       transition: background 0.3s;
 
       &:hover {
         background: rgba(0, 0, 0, 0.025);
       }
-    }
-
-    .breadcrumb-container {
-      padding: 0 16px; // 1rem to 16px
     }
   }
 

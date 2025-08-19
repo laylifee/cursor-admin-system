@@ -82,7 +82,7 @@ importers:
         specifier: ^3.0.3
         version: 3.6.2
       sass:
-        specifier: ^1.70.0
+        specifier: ^1.90.0
         version: 1.90.0
       tailwindcss:
         specifier: ^3.4.1

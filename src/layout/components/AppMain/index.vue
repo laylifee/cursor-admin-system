@@ -1,20 +1,28 @@
 <template>
   <section class="app-main">
-    <router-view v-slot="{ Component }">
+    <router-view v-slot="{ Component, route }">
       <transition name="fade-transform" mode="out-in">
-        <keep-alive>
-          <component :is="Component" />
+        <keep-alive :include="cachedViews">
+          <component :is="Component" :key="route.fullPath" />
         </keep-alive>
       </transition>
     </router-view>
   </section>
 </template>
 
+<script setup>
+import { computed } from 'vue'
+import { useTagsViewStore } from '@/store/modules/tagsView'
+
+const tagsViewStore = useTagsViewStore()
+const cachedViews = computed(() => tagsViewStore.cachedViews)
+</script>
+
 <style lang="scss" scoped>
 .app-main {
-  min-height: calc(100vh - 50px);
-  // height: calc(100vh - 50px);
-  padding: 50px 20px 20px;
+  min-height: calc(100vh - 82px);
+  // height: calc(100vh - 84px);
+  padding: 82px 20px 20px;
   position: relative;
   overflow: hidden;
 }

@@ -74,7 +74,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .sidebar {
   height: 100%;
-  background-color: $menu-bg-color;
+  background-color: #304156;
   transition: width 0.28s;
 
   :deep(.el-scrollbar) {

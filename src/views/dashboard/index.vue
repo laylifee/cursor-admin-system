@@ -251,7 +251,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .dashboard-container {
-  padding: 0; // 1rem to 16px
+  padding: 16px 0 0; // 1rem to 16px
 
   .statistics-card {
     .card-header {

@@ -22,11 +22,12 @@ const breadcrumbs = ref([])
 const getBreadcrumb = () => {
   let matched = route.matched.filter((item) => item.meta && item.meta.title)
   const first = matched[0]
+  console.log('matched', matched)
 
   // 如果第一个匹配的路径不是以 '/dashboard' 开头，则在面包屑中添加首页
-  if (!first?.path.startsWith('/dashboard')) {
-    matched = [{ path: '/dashboard', meta: { title: '首页' } }].concat(matched)
-  }
+  // if (!first?.path.startsWith('/dashboard')) {
+  //   matched = [{ path: '/dashboard', meta: { title: '首页' } }].concat(matched)
+  // }
 
   breadcrumbs.value = matched
 }
@@ -51,7 +52,7 @@ watch(
 
 <style lang="scss" scoped>
 .el-breadcrumb {
-  line-height: 2.5rem;
+  // line-height: 2.5rem;
 
   :deep(.no-redirect) {
     color: #4b5563;
@@ -61,7 +62,7 @@ watch(
 
 .breadcrumb-enter-active,
 .breadcrumb-leave-active {
-  transition: all 0.3s;
+  transition: all 0.1s;
 }
 
 .breadcrumb-enter-from {
