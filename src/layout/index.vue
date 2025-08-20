@@ -46,8 +46,8 @@ provide('sidebarWidth', sidebarWidth)
   position: relative;
   height: 100vh;
   width: 100%;
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden;
+  box-sizing: border-box;
 
   /* Custom scrollbar styles to match Element Plus */
   &::-webkit-scrollbar {
@@ -118,6 +118,8 @@ provide('sidebarWidth', sidebarWidth)
   transition: margin-left 0.28s;
   position: relative;
   overflow: hidden;
+  margin-right: 0;
+  box-sizing: border-box;
 }
 
 .sidebar-collapse {

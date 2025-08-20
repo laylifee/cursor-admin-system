@@ -25,6 +25,7 @@ const cachedViews = computed(() => tagsViewStore.cachedViews)
   padding: 82px 20px 20px;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 // 合并重复的动画定义
 .fade-transform {
