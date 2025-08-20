@@ -115,6 +115,7 @@ provide('sidebarWidth', sidebarWidth)
   height: 100%;
   transition: margin-left 0.28s;
   position: relative;
+  overflow: hidden;
 }
 
 .sidebar-collapse {

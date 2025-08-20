@@ -1,35 +1,115 @@
 <template>
   <div class="app-container">
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <span>角色列表</span>
-          <el-button type="primary" @click="handleAdd">新增角色</el-button>
-        </div>
+    <!-- 搜索区域 -->
+    <!-- <div class="search-container">
+      <div class="search-content">
+        <el-form :model="searchForm" ref="searchFormRef" :inline="true" class="search-form">
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+        </el-form>
+      </div>
+      <div class="search-actions">
+        <el-button type="primary" @click="handleSearch">
+          <el-icon><Search /></el-icon>
+          搜索
+        </el-button>
+        <el-button @click="resetSearch">
+          <el-icon><Refresh /></el-icon>
+          重置
+        </el-button>
+      </div>
+    </div> -->
+    <SearchWrapper>
+      <template #left>
+        <el-form :model="searchForm" ref="searchFormRef" :inline="true" class="search-form">
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+        </el-form>
       </template>
+      <template #right>
+        <el-button type="primary" @click="handleSearch">
+          <el-icon><Search /></el-icon>
+          搜索
+        </el-button>
+        <el-button @click="resetSearch">
+          <el-icon><Refresh /></el-icon>
+          重置
+        </el-button>
+      </template>
+    </SearchWrapper>
 
-      <el-table :data="tableData" style="width: 100%" v-loading="loading">
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="角色名称" width="120" />
-        <el-table-column prop="code" label="角色标识" width="120" />
-        <el-table-column prop="description" label="描述" />
-        <el-table-column label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="+row.status === 1 ? 'success' : 'danger'">
-              {{ +row.status === 1 ? '启用' : '禁用' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="250" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-            <el-button type="success" link @click="handlePermission(row)">权限</el-button>
-            <el-button v-if="+row.code !== 1" type="danger" link @click="handleDelete(row)"
-              >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
+    <!-- 表格区域 -->
+    <div class="table-container">
+      <div class="table-header">
+        <div class="header-title">
+          <h3>角色列表</h3>
+        </div>
+        <div class="header-actions">
+          <el-button type="primary" @click="handleAdd">
+            <el-icon><Plus /></el-icon>
+            新增角色
+          </el-button>
+          <el-button @click="refreshTable">
+            <el-icon><Refresh /></el-icon>
+            刷新
+          </el-button>
+          <el-button type="success" @click="generateRandomData">
+            <el-icon><Plus /></el-icon>
+            生成随机数据
+          </el-button>
+        </div>
+      </div>
+
+      <div class="table-content">
+        <el-table :data="tableData" style="width: 100%" v-loading="loading" :height="tableHeight">
+          <el-table-column prop="id" label="ID" width="80" />
+          <el-table-column prop="name" label="角色名称" width="120" />
+          <el-table-column prop="code" label="角色标识" width="120" />
+          <el-table-column prop="description" label="描述" />
+          <el-table-column label="状态" width="100">
+            <template #default="{ row }">
+              <el-tag :type="+row.status === 1 ? 'success' : 'danger'">
+                {{ +row.status === 1 ? '启用' : '禁用' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="250" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+              <el-button type="success" link @click="handlePermission(row)">权限</el-button>
+              <el-button v-if="+row.code !== 1" type="danger" link @click="handleDelete(row)"
+                >删除</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
       <!-- 分页 -->
       <div class="pagination-container">
         <el-pagination
@@ -42,7 +122,7 @@
           @current-change="handleCurrentChange"
         />
       </div>
-    </el-card>
+    </div>
 
     <!-- 新增角色弹窗 -->
     <el-dialog
@@ -80,14 +160,19 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { db } from '@/utils/dbConfig.js'
+import { useTableHeight } from '@/utils/useTableHeight'
 const loading = ref(false)
 const tableData = ref()
 const currentPage = ref(1)
 const pageSize = ref(10)
-const total = ref(0)
+const total = ref(20)
+
+const { tableHeight, calculateTableHeight } = useTableHeight()
+
 // 是否是编辑状态
 const isEdit = ref(false)
 // 新增弹窗
@@ -107,6 +192,8 @@ const rules = {
 }
 // 新增表单ref
 const formRef = ref(null)
+// 搜索表单ref
+const searchFormRef = ref(null)
 const handleAdd = () => {
   formRef.value && formRef.value.resetFields()
   isEdit.value = false
@@ -163,6 +250,8 @@ const getList = async () => {
   loading.value = true
   try {
     handleSearch()
+    // 数据加载完成后重新计算表格高度
+    calculateTableHeight()
   } catch (error) {
     console.error('获取角色列表失败:', error)
   } finally {
@@ -208,7 +297,10 @@ const handleSearch = async () => {
     .limit(pageSize.value)
 
   tableData.value = await query.toArray()
-  total.value = await query.count()
+  total.value = 20
+
+  // 搜索完成后重新计算表格高度
+  calculateTableHeight()
 }
 // 关闭弹窗
 const handleClose = () => {
@@ -225,24 +317,117 @@ const handleCurrentChange = (val) => {
   currentPage.value = val
   getList()
 }
+
+// 刷新表格
+const refreshTable = () => {
+  loading.value = true
+  getList()
+}
+
+// 重置搜索
+const resetSearch = () => {
+  if (searchFormRef.value) {
+    searchFormRef.value.resetFields()
+  }
+  searchForm.value = {
+    name: '',
+    code: ''
+  }
+  currentPage.value = 1
+  handleSearch()
+
+  // 重置搜索后重新计算表格高度
+  calculateTableHeight()
+}
+
+// 随机生成20条数据
+const generateRandomData = async () => {
+  ElMessageBox.confirm('确定要生成20条随机角色数据吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(async () => {
+      loading.value = true
+      try {
+        // 角色名称和描述的随机词库
+        const roleNames = [
+          '管理员',
+          '编辑',
+          '作者',
+          '审核员',
+          '访客',
+          '用户',
+          '开发者',
+          '测试员',
+          '产品经理',
+          '设计师',
+          '运营',
+          '市场',
+          '销售',
+          '客服',
+          '财务',
+          '人事',
+          '主管',
+          '总监',
+          '经理',
+          '助理'
+        ]
+
+        const descriptions = [
+          '系统管理员，拥有所有权限',
+          '内容编辑，负责内容创作',
+          '文章作者，可以发布文章',
+          '内容审核，负责审核内容',
+          '只读权限，无法修改内容',
+          '普通用户，基础权限',
+          '系统开发人员，技术权限',
+          '质量测试，测试权限',
+          '产品规划，产品相关权限',
+          'UI/UX设计，设计相关权限',
+          '运营人员，运营相关权限',
+          '市场推广，市场相关权限',
+          '销售人员，销售相关权限',
+          '客户服务，客服相关权限',
+          '财务管理，财务相关权限',
+          '人事管理，人事相关权限',
+          '部门主管，管理权限',
+          '部门总监，高级管理权限',
+          '项目经理，项目管理权限',
+          '行政助理，行政相关权限'
+        ]
+
+        // 生成20条随机数据
+        for (let i = 0; i < 20; i++) {
+          const randomIndex = Math.floor(Math.random() * roleNames.length)
+          const name = `${roleNames[randomIndex]}${i + 1}`
+          const code = `role_${Date.now()}_${i}`
+          const status = Math.random() > 0.3 ? '1' : '0' // 70%概率为启用状态
+
+          await db.role.add({
+            name,
+            code,
+            description: descriptions[randomIndex],
+            status,
+            _deleted: 0
+          })
+        }
+
+        ElMessage.success('成功生成20条随机角色数据')
+        getList()
+      } catch (error) {
+        console.error('生成随机数据失败:', error)
+        ElMessage.error('生成随机数据失败')
+      } finally {
+        loading.value = false
+      }
+    })
+    .catch(() => {})
+}
+
 onMounted(() => {
   getList()
 })
 </script>
 
-<style lang="scss" scoped>
-.app-container {
-  padding: 16px; // 1rem to 16px
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .pagination-container {
-    margin-top: 16px;
-    display: flex;
-    justify-content: flex-end;
-  }
-}
-</style>
+<style lang="scss" scoped></style>

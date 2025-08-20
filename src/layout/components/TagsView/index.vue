@@ -90,11 +90,10 @@ const closeAllTags = (view) => {
 
 // 刷新选中的标签
 const refreshSelectedTag = (view) => {
-  tagsViewStore.delCachedView(view).then(() => {
-    const { path } = view
-    router.replace({
-      path: '/redirect' + path
-    })
+  tagsViewStore.delCachedView(view)
+  const { path } = view
+  router.replace({
+    path: '/redirect' + path
   })
   contextMenuVisible.value = false
 }

@@ -82,39 +82,51 @@ div:focus {
 .m-0 {
   margin: 0;
 }
+
 .mt-1 {
   margin-top: 4px; // 0.25rem 转换为 4px
 }
+
 .mr-1 {
   margin-right: 4px; // 0.25rem 转换为 4px
 }
+
 .mb-1 {
   margin-bottom: 4px; // 0.25rem 转换为 4px
 }
+
 .ml-1 {
   margin-left: 4px; // 0.25rem 转换为 4px
 }
+
 .mt-2 {
   margin-top: 8px; // 0.5rem 转换为 8px
 }
+
 .mr-2 {
   margin-right: 8px; // 0.5rem 转换为 8px
 }
+
 .mb-2 {
   margin-bottom: 8px; // 0.5rem 转换为 8px
 }
+
 .ml-2 {
   margin-left: 8px; // 0.5rem 转换为 8px
 }
+
 .mt-4 {
   margin-top: 16px; // 1rem 转换为 16px
 }
+
 .mr-4 {
   margin-right: 16px; // 1rem 转换为 16px
 }
+
 .mb-4 {
   margin-bottom: 16px; // 1rem 转换为 16px
 }
+
 .ml-4 {
   margin-left: 16px; // 1rem 转换为 16px
 }
@@ -123,18 +135,23 @@ div:focus {
 .text-primary {
   color: $text-primary;
 }
+
 .text-regular {
   color: $text-regular;
 }
+
 .text-secondary {
   color: $text-secondary;
 }
+
 .text-success {
   color: $success-color;
 }
+
 .text-warning {
   color: $warning-color;
 }
+
 .text-danger {
   color: $danger-color;
 }
@@ -142,9 +159,11 @@ div:focus {
 .text-left {
   text-align: left;
 }
+
 .text-center {
   text-align: center;
 }
+
 .text-right {
   text-align: right;
 }
@@ -152,6 +171,7 @@ div:focus {
 .font-bold {
   font-weight: bold;
 }
+
 .font-normal {
   font-weight: normal;
 }
@@ -160,6 +180,7 @@ div:focus {
 .cursor-pointer {
   cursor: pointer;
 }
+
 .cursor-not-allowed {
   cursor: not-allowed;
 }
@@ -168,9 +189,11 @@ div:focus {
 .hidden {
   display: none;
 }
+
 .block {
   display: block;
 }
+
 .inline-block {
   display: inline-block;
 }
@@ -179,9 +202,11 @@ div:focus {
 .overflow-hidden {
   overflow: hidden;
 }
+
 .overflow-auto {
   overflow: auto;
 }
+
 .overflow-scroll {
   overflow: scroll;
 }
@@ -190,9 +215,11 @@ div:focus {
 .relative {
   position: relative;
 }
+
 .absolute {
   position: absolute;
 }
+
 .fixed {
   position: fixed;
 }
@@ -201,9 +228,101 @@ div:focus {
 .w-full {
   width: 100%;
 }
+
 .h-full {
   height: 100%;
 }
+
 .min-h-screen {
   min-height: 100vh;
+}
+
+.app-container {
+  padding: 16px 0;
+  height: calc(100vh - 84px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  .table-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+    overflow: hidden;
+    box-sizing: border-box;
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid #f0f0f0;
+
+      .header-title {
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.85);
+        }
+      }
+    }
+
+    .table-content {
+      flex: 1;
+      overflow: hidden;
+      padding: 0 16px;
+    }
+  }
+}
+
+
+
+// 分页样式
+.pagination-container {
+  padding: 16px 16px;
+  display: flex;
+  justify-content: flex-end;
+  box-sizing: border-box;
+
+  .el-pagination {
+    .el-pager li {
+      border: 1px solid #dcdfe6;
+      margin: 0 2px;
+      border-radius: 4px;
+
+      &.active,
+      &.is-active {
+        border-color: var(--el-color-primary);
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+      }
+
+      &:hover:not(.active) {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+      }
+    }
+
+    .btn-prev,
+    .btn-next {
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
+      padding: 0 10px;
+
+      &:hover {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+      }
+    }
+
+    .el-pagination__sizes {
+      margin-right: 16px;
+    }
+  }
 }
