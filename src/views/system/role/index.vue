@@ -1,37 +1,6 @@
 <template>
   <div class="app-container">
     <!-- 搜索区域 -->
-    <!-- <div class="search-container">
-      <div class="search-content">
-        <el-form :model="searchForm" ref="searchFormRef" :inline="true" class="search-form">
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
-          </el-form-item>
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
-          </el-form-item>
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
-          </el-form-item>
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
-          </el-form-item>
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
-          </el-form-item>
-        </el-form>
-      </div>
-      <div class="search-actions">
-        <el-button type="primary" @click="handleSearch">
-          <el-icon><Search /></el-icon>
-          搜索
-        </el-button>
-        <el-button @click="resetSearch">
-          <el-icon><Refresh /></el-icon>
-          重置
-        </el-button>
-      </div>
-    </div> -->
     <SearchWrapper>
       <template #left>
         <el-form :model="searchForm" ref="searchFormRef" :inline="true" class="search-form">

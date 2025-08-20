@@ -79,13 +79,15 @@ provide('sidebarWidth', sidebarWidth)
   transition: width 0.28s;
   z-index: 1001;
   overflow: hidden;
+  box-sizing: border-box;
+  border-right: 1px solid #dcdfe6; /* 添加边框 */
 
   .logo-container {
     height: 50px;
     padding: 10px;
     display: flex;
     align-items: center;
-    background-color: darken($menu-bg-color, 2%);
+    background-color: #2c3e50;
 
     .logo-link {
       display: flex;

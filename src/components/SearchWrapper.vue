@@ -19,7 +19,7 @@
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
-
+  border: 1px solid #dcdfe6; /* 添加边框 */
   .search-content {
     display: flex;
     flex-wrap: wrap;

@@ -57,9 +57,9 @@ const activeMenu = computed(() => {
 })
 
 const variables = {
-  menuText: '#bfcbd9',
-  menuActiveText: '#409eff',
-  menuBg: '#304156'
+  menuText: '#e6e6e6',
+  menuActiveText: '#ffffff',
+  menuBg: '#2c3e50'
 }
 onMounted(() => {
   handleResize()
@@ -74,7 +74,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .sidebar {
   height: 100%;
-  background-color: #304156;
+  background-color: #2c3e50;
   transition: width 0.28s;
 
   :deep(.el-scrollbar) {
@@ -102,10 +102,10 @@ onUnmounted(() => {
 
   :deep(.el-menu-item) {
     &:hover {
-      background-color: #263445 !important;
+      background-color: #34495e !important;
     }
     &.is-active {
-      background-color: #1890ff !important;
+      background-color: #3498db !important;
       color: #ffffff !important;
     }
   }
@@ -113,13 +113,13 @@ onUnmounted(() => {
   :deep(.el-sub-menu) {
     &.is-active {
       > .el-sub-menu__title {
-        color: #f4f4f5 !important;
+        color: #3498db !important;
       }
     }
 
     .el-sub-menu__title {
       &:hover {
-        background-color: #263445 !important;
+        background-color: #34495e !important;
       }
     }
 
