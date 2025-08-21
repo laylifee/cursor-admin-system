@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!isHidden(item)">
     <el-sub-menu
       v-if="hasChildren(item) && !hasSingleChild(item)"
       ref="subMenu"
@@ -53,6 +53,16 @@ const hasChildren = (item) => {
 
 const hasSingleChild = (item) => {
   return item.children && item.children.length === 1
+}
+
+const isHidden = (item) => {
+  // 判断路由是否隐藏，默认不隐藏
+  return item.meta && item.meta.hidden === true
+}
+
+const isDisabled = (item) => {
+  // 判断路由是否禁用，默认不禁用
+  return item.meta && item.meta.disabled === true
 }
 
 const handleClick = (path) => {

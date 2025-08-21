@@ -80,7 +80,7 @@ const passwordVisible = ref(false)
 
 const loginForm = ref({
   username: 'admin',
-  password: '123456'
+  password: '1q2w3E*'
 })
 
 const loginRules = {

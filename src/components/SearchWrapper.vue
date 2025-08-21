@@ -16,7 +16,6 @@
   padding: 16px 16px 0;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   margin-bottom: 0;
-  margin-top: 16px;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -25,7 +24,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 8px;
 
     .search-form {
       display: flex;

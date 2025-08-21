@@ -1,173 +1,244 @@
 <template>
   <div class="app-container">
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <span>用户列表</span>
-          <el-button type="primary" @click="showAddUserDialog">新增用户</el-button>
-        </div>
+    <!-- 搜索区域 -->
+    <SearchWrapper>
+      <template #left>
+        <el-form :model="paramsForm" ref="searchFormRef" :inline="true" class="search-form">
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="paramsForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+          <el-form-item label="角色名称" prop="name">
+            <el-input v-model="paramsForm.name" placeholder="请输入角色名称" clearable />
+          </el-form-item>
+        </el-form>
       </template>
-      <table-search>
-        <template #form>
-          <el-form :model="searchForm" inline ref="searchFormRef" label-width="100px">
-            <el-form-item label="姓名" prop="name">
-              <el-input v-model="searchForm.name" style="width: 200px" />
-            </el-form-item>
-            <el-form-item label="年龄" prop="age">
-              <el-input v-model="searchForm.age" style="width: 200px" />
-            </el-form-item>
-          </el-form>
-        </template>
-        <template #buttons>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
-        </template>
-      </table-search>
+      <template #right>
+        <el-button type="primary" @click="handleSearch"> 搜索 </el-button>
+        <el-button @click="resetSearch"> 重置 </el-button>
+      </template>
+    </SearchWrapper>
 
-      <el-table :data="tableData" style="width: 100%" v-loading="loading">
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="姓名" width="120" />
-        <el-table-column prop="roles" label="角色">
-          <template #default="{ row }">
-            <el-tag v-for="role in row.roles" :key="role" class="mr-1">
-              {{ role }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="age" label="年龄" width="80" />
-        <el-table-column prop="gender" label="性别" width="80" />
-        <el-table-column prop="phone" label="手机号" width="150" />
-        <el-table-column prop="email" label="邮箱" width="150" />
-        <el-table-column prop="avatar" label="头像" width="150"></el-table-column>
-        <el-table-column prop="status" label="状态" width="80">
-          <template #default="{ row }">
-            <el-tag :type="row.status === '启用' ? 'success' : 'danger'">{{ row.status }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="remark" label="简介" />
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-            <el-button :loading="isDeleting" type="danger" link @click="handleDelete(row)"
-              >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
+    <!-- 表格区域 -->
+    <div class="table-container">
+      <div class="table-header">
+        <div class="header-title">
+          <h3>角色列表</h3>
+        </div>
+        <div class="header-actions">
+          <el-button type="primary" @click="handleAdd"> 新增用户 </el-button>
+          <el-button @click="refreshTable">
+            <el-icon><Refresh /></el-icon>
+            刷新
+          </el-button>
+        </div>
+      </div>
 
+      <div class="table-content">
+        <el-table :data="tableData" style="width: 100%" v-loading="loading" :height="tableHeight">
+          <el-table-column prop="userName" label="用户名称" />
+          <el-table-column prop="email" label="邮箱" />
+          <el-table-column prop="phoneNumber" label="手机号" />
+          <el-table-column prop="creationTime" label="创建时间" />
+          <el-table-column label="状态">
+            <template #default="{ row }">
+              <el-tag :type="+row.isActive === 1 ? 'success' : 'danger'">
+                {{ +row.isActive === 1 ? '启用' : '禁用' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+              <el-button type="success" link @click="handlePermission(row)">权限</el-button>
+              <el-button v-if="+row.code !== 1" type="danger" link @click="handleDelete(row)"
+                >删除</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <!-- 分页 -->
       <div class="pagination-container">
         <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :page-sizes="[10, 20, 30, 50]"
-          :total="total"
+          v-model:current-page="paramsForm.SkipCount"
+          :page-sizes="[10, 20, 30, 40]"
+          :page-size="paramsForm.MaxResultCount"
           layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
       </div>
-    </el-card>
+    </div>
 
-    <el-dialog v-model="addUserDialogVisible" :title="dialogTitle">
-      <el-form :model="addUserForm" :rules="rules" ref="addUserFormRef" label-width="100px">
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="addUserForm.name" style="width: 200px" />
+    <!-- 新增角色弹窗 -->
+    <el-dialog
+      :title="isEdit ? '编辑' : '新增'"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      v-model="dialogVisible"
+      width="50%"
+      :before-close="handleClose"
+    >
+      <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
+        <el-form-item label="角色名称" prop="name">
+          <el-input v-model="form.name" style="width: 200px" />
         </el-form-item>
-        <el-form-item label="年龄" prop="age">
-          <el-input v-model="addUserForm.age" style="width: 200px" />
+        <el-form-item label="角色标识" prop="code">
+          <el-input :disabled="isEdit" v-model="form.code" style="width: 200px" />
         </el-form-item>
-        <el-form-item label="性别" prop="gender">
-          <el-select v-model="addUserForm.gender" style="width: 200px">
-            <el-option label="男" value="男" />
-            <el-option label="女" value="女" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="addUserForm.phone" style="width: 200px" />
-        </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="addUserForm.email" style="width: 200px" />
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input type="password" v-model="addUserForm.password" style="width: 200px" />
-        </el-form-item>
-        <el-form-item label="头像" prop="avatar">
-          <el-input v-model="addUserForm.avatar" style="width: 200px" />
-        </el-form-item>
+        <!-- 状态 -->
         <el-form-item label="状态" prop="status">
-          <el-select v-model="addUserForm.status" style="width: 200px">
-            <el-option label="启用" value="启用" />
-            <el-option label="禁用" value="禁用" />
+          <el-select v-model="form.status" style="width: 200px">
+            <el-option label="启用" value="1" />
+            <el-option label="禁用" value="0" />
           </el-select>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="addUserForm.remark" style="width: 200px" />
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="form.description" style="width: 200px" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="addUserDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleAddUser">确定</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref, nextTick, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import request from '@/utils/request'
+import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { db } from '@/utils/dbConfig.js'
-import TableSearch from '@/components/TableSearch.vue'
+import { useTableHeight } from '@/utils/useTableHeight'
+import { getUserList, getUserDetail, editUser, deleteUser, addUser } from '@/api/user'
 const loading = ref(false)
 const tableData = ref([])
-const currentPage = ref(1)
-const pageSize = ref(10)
 const total = ref(0)
-const addUserDialogVisible = ref(false)
-const searchForm = ref({
-  name: '',
-  age: ''
+const paramsForm = ref({
+  SkipCount: 1,
+  MaxResultCount: 20
 })
-const searchFormRef = ref(null)
-const addUserForm = ref({
-  name: '',
-  age: '',
-  gender: '',
-  phone: '',
-  email: '',
-  password: '',
-  avatar: '',
-  status: '',
-  remark: ''
-})
-const addUserFormRef = ref(null)
-// 弹窗的title
-const dialogTitle = ref('新增用户')
-// 编辑当前行的数据
-const currentRow = ref(null)
+
+const { tableHeight, calculateTableHeight } = useTableHeight()
+
 // 是否是编辑状态
 const isEdit = ref(false)
-// 是否正在删除
-const isDeleting = ref(false)
+// 新增弹窗
+const dialogVisible = ref(false)
+// 新增表单
+const form = ref({
+  name: '',
+  code: '',
+  description: '',
+  status: '1'
+})
+// 新增表单验证规则
 const rules = {
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-  age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
-  gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
-  phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
-  email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+  name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
+  code: [{ required: true, message: '请输入角色标识', trigger: 'blur' }]
+  // description: [{ required: true, message: '请输入描述', trigger: 'blur' }]
+}
+// 新增表单ref
+const formRef = ref(null)
+// 搜索表单ref
+const searchFormRef = ref(null)
+const handleAdd = () => {
+  formRef.value && formRef.value.resetFields()
+  isEdit.value = false
+  dialogVisible.value = true
 }
 
+// 确定新增
+const handleSubmit = () => {
+  formRef.value.validate(async (valid) => {
+    if (valid) {
+      // 编辑角色
+      if (isEdit.value) {
+        await db.role.update(form.value.id, form.value)
+        dialogVisible.value = false
+        isEdit.value = false
+        getList()
+        ElMessage.success('编辑角色成功')
+        return
+      }
+      // 新增角色
+      const data = {
+        ...form.value
+      }
+      // 判断角色标识是否已存在
+      const res = await db.role.where('code').equals(form.value.code).toArray()
+      if (res.length > 0) {
+        ElMessage.warning('角色标识已存在')
+        return
+      }
+      data._deleted = 0
+      await db.role.add(data)
+      dialogVisible.value = false
+      isEdit.value = false
+      getList()
+      ElMessage.success('新增角色成功')
+    }
+  })
+}
+// 编辑
+const handleEdit = (row) => {
+  form.value = { ...row }
+  isEdit.value = true
+  dialogVisible.value = true
+}
+
+const handlePermission = (row) => {
+  ElMessage.info('权限配置功能开发中')
+}
 const getList = async () => {
   loading.value = true
   try {
     handleSearch()
+    // 数据加载完成后重新计算表格高度
+    calculateTableHeight()
   } catch (error) {
-    console.error('获取用户列表失败:', error)
+    console.error('获取角色列表失败:', error)
   } finally {
     loading.value = false
   }
+}
+const handleDelete = (row) => {
+  ElMessageBox.confirm('确认删除该角色吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(async () => {
+      // 如果登录超级管理员，不允许删除
+      if (row.code === '1') {
+        ElMessage.warning('超级管理员不允许删除')
+        return
+      }
+      // 软删除
+      await db.role.update(row.id, {
+        _deleted: 1
+      })
+      getList()
+      ElMessage.success('删除成功')
+    })
+    .catch(() => {})
+}
+// 通过查询条件去查找数据
+const handleSearch = async () => {
+  await getUserList()
+
+  tableData.value = await query.toArray()
+  total.value = 20
+
+  // 搜索完成后重新计算表格高度
+  calculateTableHeight()
+}
+// 关闭弹窗
+const handleClose = () => {
+  formRef.value.resetFields()
+  isEdit.value = false
 }
 
 const handleSizeChange = (val) => {
@@ -180,104 +251,116 @@ const handleCurrentChange = (val) => {
   getList()
 }
 
-const showAddUserDialog = () => {
-  addUserDialogVisible.value = true
+// 刷新表格
+const refreshTable = () => {
+  loading.value = true
+  getList()
 }
 
-const handleAddUser = () => {
-  addUserFormRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        if (isEdit.value) {
-          await db.users.update(currentRow.value.id, addUserForm.value)
-          ElMessage.success('编辑用户成功')
-          isEdit.value = false
-          dialogTitle.value = '新增用户'
-          addUserDialogVisible.value = false
-          getList()
-          return
-        }
-        const user = { ...addUserForm.value }
-        await db.users.add(user)
-        ElMessage.success('新增用户成功')
-        addUserDialogVisible.value = false
-        getList()
-      } catch (error) {
-        console.error('操作失败:', error)
-      }
-    }
-  })
+// 重置搜索
+const resetSearch = () => {
+  if (searchFormRef.value) {
+    searchFormRef.value.resetFields()
+  }
+  searchForm.value = {
+    name: '',
+    code: ''
+  }
+  currentPage.value = 1
+  handleSearch()
+
+  // 重置搜索后重新计算表格高度
+  calculateTableHeight()
 }
 
-const handleEdit = (row) => {
-  isEdit.value = true
-  dialogTitle.value = '编辑用户'
-  currentRow.value = { ...row }
-  addUserForm.value = { ...row }
-  addUserDialogVisible.value = true
-}
-
-const handleDelete = (row) => {
-  ElMessageBox.confirm('确认删除该用户吗？', '提示', {
+// 随机生成20条数据
+const generateRandomData = async () => {
+  ElMessageBox.confirm('确定要生成20条随机角色数据吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   })
     .then(async () => {
-      isDeleting.value = true
-      await db.users.delete(row.id)
-      getList()
-      ElMessage.success('删除成功')
+      loading.value = true
+      try {
+        // 角色名称和描述的随机词库
+        const roleNames = [
+          '管理员',
+          '编辑',
+          '作者',
+          '审核员',
+          '访客',
+          '用户',
+          '开发者',
+          '测试员',
+          '产品经理',
+          '设计师',
+          '运营',
+          '市场',
+          '销售',
+          '客服',
+          '财务',
+          '人事',
+          '主管',
+          '总监',
+          '经理',
+          '助理'
+        ]
+
+        const descriptions = [
+          '系统管理员，拥有所有权限',
+          '内容编辑，负责内容创作',
+          '文章作者，可以发布文章',
+          '内容审核，负责审核内容',
+          '只读权限，无法修改内容',
+          '普通用户，基础权限',
+          '系统开发人员，技术权限',
+          '质量测试，测试权限',
+          '产品规划，产品相关权限',
+          'UI/UX设计，设计相关权限',
+          '运营人员，运营相关权限',
+          '市场推广，市场相关权限',
+          '销售人员，销售相关权限',
+          '客户服务，客服相关权限',
+          '财务管理，财务相关权限',
+          '人事管理，人事相关权限',
+          '部门主管，管理权限',
+          '部门总监，高级管理权限',
+          '项目经理，项目管理权限',
+          '行政助理，行政相关权限'
+        ]
+
+        // 生成20条随机数据
+        for (let i = 0; i < 20; i++) {
+          const randomIndex = Math.floor(Math.random() * roleNames.length)
+          const name = `${roleNames[randomIndex]}${i + 1}`
+          const code = `role_${Date.now()}_${i}`
+          const status = Math.random() > 0.3 ? '1' : '0' // 70%概率为启用状态
+
+          await db.role.add({
+            name,
+            code,
+            description: descriptions[randomIndex],
+            status,
+            _deleted: 0
+          })
+        }
+
+        ElMessage.success('成功生成20条随机角色数据')
+        getList()
+      } catch (error) {
+        console.error('生成随机数据失败:', error)
+        ElMessage.error('生成随机数据失败')
+      } finally {
+        loading.value = false
+      }
     })
     .catch(() => {})
-    .finally(() => {
-      isDeleting.value = false
-    })
 }
 
-// 通过查询条件去查找数据
-const handleSearch = async () => {
-  const query = db.users
-    .filter((user) => {
-      const nameMatch =
-        !searchForm.value.name ||
-        searchForm.value.name === '' ||
-        user.name === searchForm.value.name
-      const ageMatch =
-        !searchForm.value.age || searchForm.value.age === '' || user.age === searchForm.value.age
-      return nameMatch && ageMatch
-    })
-    .offset((currentPage.value - 1) * pageSize.value)
-    .limit(pageSize.value)
-
-  tableData.value = await query.toArray()
-  total.value = await query.count()
-}
-// 重置查询条件
-const handleReset = () => {
-  searchFormRef.value.resetFields()
-  currentPage.value = 1
-  getList()
-}
 onMounted(() => {
   getList()
 })
 </script>
 
-<style lang="scss" scoped>
-.app-container {
-  padding: 16px;
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .pagination-container {
-    margin-top: 16px;
-    display: flex;
-    justify-content: flex-end;
-  }
-}
-</style>
+<style lang="scss" scoped></style>

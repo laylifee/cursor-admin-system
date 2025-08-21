@@ -252,9 +252,9 @@ window.addEventListener('click', closeContextMenu)
     }
 
     &.active {
-      background-color: #409eff;
+      background-color: #{$primary-color};
       color: #fff;
-      border-color: #409eff;
+      border-color: #{$primary-color};
 
       &::before {
         content: '';
@@ -283,7 +283,7 @@ window.addEventListener('click', closeContextMenu)
       border-radius: 50%;
       transition: all 0.3s;
       &:hover {
-        background-color: rgba(64, 158, 255, 1);
+        background-color: #{$primary-color};
         color: #fff;
       }
     }
