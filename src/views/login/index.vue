@@ -1,5 +1,10 @@
 <template>
   <div class="login-container">
+    <div class="login-background">
+      <div class="logo-container">
+        <img src="@/assets/logo.svg" alt="Logo" class="logo-image" />
+      </div>
+    </div>
     <el-form
       ref="loginFormRef"
       :model="loginForm"
@@ -12,10 +17,10 @@
         <h3 class="title">{{ title }}</h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="userNameOrEmailAddress">
         <el-input
           ref="usernameRef"
-          v-model="loginForm.username"
+          v-model="loginForm.userNameOrEmailAddress"
           placeholder="用户名"
           type="text"
           tabindex="1"
@@ -49,6 +54,10 @@
         </el-input>
       </el-form-item>
 
+      <div class="remember-me">
+        <el-checkbox v-model="rememberMe">记住我</el-checkbox>
+      </div>
+
       <el-button :loading="loading" type="primary" class="w-full" @click.prevent="handleLogin">
         登录
       </el-button>
@@ -63,7 +72,6 @@ import { useUserStore } from '@/store/modules/user'
 import { User, Lock, View, Hide } from '@element-plus/icons-vue'
 import { validUsername, validPassword } from '@/utils/validate'
 import { ElMessage } from 'element-plus'
-
 const title = computed(() => {
   return import.meta.env.VITE_APP_TITLE || 'Admin System'
 })
@@ -77,14 +85,15 @@ const usernameRef = ref(null)
 const passwordRef = ref(null)
 const loading = ref(false)
 const passwordVisible = ref(false)
+const rememberMe = ref(true)
 
 const loginForm = ref({
-  username: 'admin',
+  userNameOrEmailAddress: 'admin',
   password: '1q2w3E*'
 })
 
 const loginRules = {
-  username: [
+  userNameOrEmailAddress: [
     { required: true, trigger: 'blur', message: '请输入用户名' },
     {
       validator: (rule, value, callback) => {
@@ -117,7 +126,11 @@ const handleLogin = () => {
     if (valid) {
       loading.value = true
       try {
-        await userStore.login(loginForm.value)
+        const params = {
+          ...loginForm.value,
+          rememberMe: rememberMe.value
+        }
+        await userStore.login(params)
         await userStore.getInfo()
         const redirect = route.query.redirect || '/'
         router.replace(redirect)
@@ -140,30 +153,82 @@ onMounted(() => {
 <style lang="scss" scoped>
 .login-container {
   min-height: 100vh;
-  background-color: rgb(243, 244, 246);
+  width: 100%;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+  overflow: hidden;
+
+  .login-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://fastly.picsum.photos/id/19/1920/1080.jpg?hmac=cbrh0kBPEoVfsb2YKz7SzY2Tt1p20W4m5eASktyYbx0');
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 2;
+    }
+
+    .logo-container {
+      position: absolute;
+      top: 50%;
+      left: 10%;
+      transform: translateY(-50%);
+      z-index: 3;
+
+      .logo-image {
+        max-width: 400px;
+        width: 100%;
+        height: auto;
+      }
+    }
+  }
 
   .login-form {
     background-color: white;
     border-radius: 0.5rem;
-    padding: 2rem;
-    width: 400px;
+    padding: 2.5rem;
+    width: 420px;
+    position: relative;
+    z-index: 4;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    margin-left: auto;
+    margin-right: 10%;
+    margin-top: auto;
+    margin-bottom: auto;
 
     .title-container {
       margin-bottom: 2rem;
 
       .title {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         font-weight: bold;
         text-align: center;
         color: #374151;
       }
     }
 
+    .remember-me {
+      margin-bottom: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     :deep(.el-input) {
       height: 3rem;
+      margin-bottom: 0.5rem;
 
       input {
         height: 100%;
@@ -186,7 +251,57 @@ onMounted(() => {
 
     .el-button {
       height: 3rem;
-      margin-top: 1rem;
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+  }
+}
+
+// 响应式布局，确保在小屏幕上登录框不会遮挡logo
+@media (max-width: 1200px) {
+  .login-container {
+    .login-background {
+      .logo-container {
+        left: 5%;
+
+        .logo-image {
+          max-width: 300px;
+        }
+      }
+    }
+
+    .login-form {
+      margin-right: 5%;
+      width: 380px;
+      padding: 2rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    justify-content: center;
+
+    .login-background {
+      .logo-container {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        text-align: center;
+        padding: 2rem 0;
+
+        .logo-image {
+          max-width: 200px;
+        }
+      }
+    }
+
+    .login-form {
+      margin: 0 auto;
+      width: 90%;
+      max-width: 400px;
     }
   }
 }
