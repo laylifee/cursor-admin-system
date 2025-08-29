@@ -25,31 +25,34 @@
           <h3>角色列表</h3>
         </div>
         <div class="header-actions">
-          <el-button type="primary" @click="handleAdd"> 新增用户 </el-button>
+          <el-button class="ripple-button" @click="handleAdd"> 新增用户 </el-button>
           <el-button @click="refreshTable">
             <el-icon><Refresh /></el-icon>
-            刷新
           </el-button>
         </div>
       </div>
 
       <div class="table-content">
         <el-table :data="tableData" style="width: 100%" v-loading="loading" :height="tableHeight">
-          <el-table-column prop="userName" label="用户名称" />
+          <el-table-column prop="name" label="姓名" />
+          <el-table-column prop="userName" label="用户名" />
           <el-table-column prop="email" label="邮箱" />
           <el-table-column prop="phoneNumber" label="手机号" />
-          <el-table-column prop="creationTime" label="创建时间" />
           <el-table-column label="状态">
             <template #default="{ row }">
-              <el-tag :type="+row.isActive === 1 ? 'success' : 'danger'">
-                {{ +row.isActive === 1 ? '启用' : '禁用' }}
+              <el-tag :type="+row.isActive ? 'success' : 'danger'">
+                {{ +row.isActive ? '启用' : '禁用' }}
               </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="creationTime" label="创建时间">
+            <template #default="{ row }">
+              {{ row.creationTime ? dayjs(row.creationTime).format('YYYY-MM-DD HH:mm:ss') : '--' }}
             </template>
           </el-table-column>
           <el-table-column label="操作" fixed="right">
             <template #default="{ row }">
               <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-              <el-button type="success" link @click="handlePermission(row)">权限</el-button>
               <el-button v-if="+row.code !== 1" type="danger" link @click="handleDelete(row)"
                 >删除</el-button
               >
@@ -61,7 +64,7 @@
       <div class="pagination-container">
         <el-pagination
           v-model:current-page="paramsForm.SkipCount"
-          :page-sizes="[10, 20, 30, 40]"
+          :page-sizes="[20, 30, 40, 50]"
           :page-size="paramsForm.MaxResultCount"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -79,24 +82,44 @@
       v-model="dialogVisible"
       width="50%"
       :before-close="handleClose"
+      transition="dialog-scale"
     >
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
-        <el-form-item label="角色名称" prop="name">
-          <el-input v-model="form.name" style="width: 200px" />
-        </el-form-item>
-        <el-form-item label="角色标识" prop="code">
-          <el-input :disabled="isEdit" v-model="form.code" style="width: 200px" />
-        </el-form-item>
-        <!-- 状态 -->
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="form.status" style="width: 200px">
-            <el-option label="启用" value="1" />
-            <el-option label="禁用" value="0" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" style="width: 200px" />
-        </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="用户名" prop="userName">
+              <el-input placeholder="请输入用户名" v-model="form.userName" />
+            </el-form-item>
+            <el-form-item label="密码" prop="password" v-if="!isEdit">
+              <el-input placeholder="请输入密码" v-model="form.password" />
+            </el-form-item>
+            <el-form-item label="确认密码" prop="confirmPassword" v-if="!isEdit">
+              <el-input
+                placeholder="请输入确认密码"
+                :disabled="isEdit"
+                v-model="form.confirmPassword"
+              />
+            </el-form-item>
+            <!-- 状态 -->
+            <el-form-item label="状态" prop="isActive">
+              <el-radio-group v-model="form.isActive">
+                <el-radio :value="true">启用</el-radio>
+                <el-radio :value="false">禁用</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="姓名" prop="name">
+              <el-input placeholder="请输入姓名" v-model="form.name" />
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+              <el-input placeholder="请输入邮箱" :disabled="isEdit" v-model="form.email" />
+            </el-form-item>
+            <el-form-item label="手机号" prop="phoneNumber">
+              <el-input placeholder="请输入手机号" v-model="form.phoneNumber" />
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -113,6 +136,7 @@ import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { db } from '@/utils/dbConfig.js'
 import { useTableHeight } from '@/utils/useTableHeight'
 import { getUserList, getUserDetail, editUser, deleteUser, addUser } from '@/api/user'
+import dayjs from 'dayjs'
 const loading = ref(false)
 const tableData = ref([])
 const total = ref(0)
@@ -120,7 +144,6 @@ const paramsForm = ref({
   SkipCount: 1,
   MaxResultCount: 20
 })
-
 const { tableHeight, calculateTableHeight } = useTableHeight()
 
 // 是否是编辑状态
@@ -129,16 +152,59 @@ const isEdit = ref(false)
 const dialogVisible = ref(false)
 // 新增表单
 const form = ref({
+  userName: '',
+  email: '',
+  phoneNumber: '',
+  password: '',
+  isActive: true,
   name: '',
-  code: '',
-  description: '',
-  status: '1'
+  surname: '',
+  roleIds: ['27f1b093-5a61-49c9-9c98-ad603d3ed193']
 })
 // 新增表单验证规则
 const rules = {
-  name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
-  code: [{ required: true, message: '请输入角色标识', trigger: 'blur' }]
-  // description: [{ required: true, message: '请输入描述', trigger: 'blur' }]
+  userName: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (!/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(value)) {
+          callback(new Error('请输入正确的邮箱'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
+  phoneNumber: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (!/^1[3456789]\d{9}$/.test(value)) {
+          callback(new Error('请输入正确的手机号'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  isActive: [{ required: true, message: '请选择状态', trigger: 'change' }],
+  confirmPassword: [
+    {
+      validator: (rule, value, callback) => {
+        if (value !== form.value.password) {
+          callback(new Error('两次输入密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }]
 }
 // 新增表单ref
 const formRef = ref(null)
@@ -156,7 +222,11 @@ const handleSubmit = () => {
     if (valid) {
       // 编辑角色
       if (isEdit.value) {
-        await db.role.update(form.value.id, form.value)
+        const params = {
+          ...form.value
+        }
+        delete params.confirmPassword
+        await editUser(params)
         dialogVisible.value = false
         isEdit.value = false
         getList()
@@ -167,14 +237,8 @@ const handleSubmit = () => {
       const data = {
         ...form.value
       }
-      // 判断角色标识是否已存在
-      const res = await db.role.where('code').equals(form.value.code).toArray()
-      if (res.length > 0) {
-        ElMessage.warning('角色标识已存在')
-        return
-      }
-      data._deleted = 0
-      await db.role.add(data)
+      delete data.confirmPassword
+      await addUser(data)
       dialogVisible.value = false
       isEdit.value = false
       getList()
@@ -227,18 +291,31 @@ const handleDelete = (row) => {
 }
 // 通过查询条件去查找数据
 const handleSearch = async () => {
-  await getUserList()
-
-  tableData.value = await query.toArray()
-  total.value = 20
+  try {
+    const params = {
+      ...paramsForm.value
+    }
+    params.SkipCount = (paramsForm.value.SkipCount - 1) * paramsForm.value.MaxResultCount
+    loading.value = true
+    const data = await getUserList(params)
+    console.log(data, '获取角色列表')
+    tableData.value = data.items ?? []
+    total.value = data.totalCount ?? 0
+  } catch (error) {
+    console.error('获取角色列表失败:', error)
+  } finally {
+    loading.value = false
+  }
 
   // 搜索完成后重新计算表格高度
   calculateTableHeight()
 }
 // 关闭弹窗
-const handleClose = () => {
+const handleClose = (done) => {
   formRef.value.resetFields()
   isEdit.value = false
+  dialogVisible.value = false
+  done()
 }
 
 const handleSizeChange = (val) => {
@@ -253,7 +330,6 @@ const handleCurrentChange = (val) => {
 
 // 刷新表格
 const refreshTable = () => {
-  loading.value = true
   getList()
 }
 

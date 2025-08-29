@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 用户管理-用户列表
 export function getUserList(params) {
   return request({
-    url: '/identity/users',
+    url: '/irontracksys/identity/users',
     method: 'get',
     params
   })
@@ -19,7 +19,7 @@ export function getUserDetail(params) {
 // 用户管理-用户编辑
 export function editUser(params) {
   return request({
-    url: '/identity/users/' + params.id,
+    url: '/irontracksys/identity/users/' + params.id,
     method: 'put',
     data: params
   })
@@ -27,7 +27,7 @@ export function editUser(params) {
 // 用户管理-用户添加
 export function addUser(params) {
   return request({
-    url: '/identity/users',
+    url: '/irontracksys/identity/users',
     method: 'post',
     data: params
   })
@@ -52,16 +52,16 @@ export function getInfo(token) {
 // 用户管理-登录
 export function login(data) {
   return request({
-    url: '/account/login',
+    url: '/irontracksys/Login/login',
     method: 'post',
     data
   })
 }
 // 用户管理-登出
-export function logout(token) {
+export function logout() {
   return request({
     url: '/account/logout',
-    method: 'post',
-    params: { token }
+    method: 'post'
+    // params: { token }
   })
 }

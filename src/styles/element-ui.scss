@@ -2,6 +2,8 @@
 
 // 按钮样式
 .el-button {
+  position: relative;
+  overflow: hidden;
   &--primary {
     --el-button-bg-color: #{$primary-color};
     --el-button-border-color: #{$primary-color};
@@ -19,7 +21,6 @@
   --el-input-focus-border-color: #{$primary-color};
 
   &__inner {
-
     &:hover {
       border-color: #{darken($border-color-base, 10%)};
     }

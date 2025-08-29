@@ -3,10 +3,17 @@ import { ElMessage } from 'element-plus'
 import { getToken } from '@/utils/auth'
 import router from '@/router'
 
+// 创建axios实例
 const service = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_BASE_URL,
-  // baseURL: '',
-  timeout: 5000
+  // 在开发环境中使用相对路径，让Vite代理处理请求
+  // 生产环境使用绝对路径
+  // baseURL: import.meta.env.DEV
+  //   ? '/irontracksys'
+  //   : import.meta.env.VITE_APP_API_BASE_URL || 'https://localhost:44392/irontracksys',
+  baseURL: '',
+  // baseURL: '/irontracksys',
+  timeout: 5000,
+  withCredentials: true
 })
 
 // 请求拦截器
@@ -16,6 +23,8 @@ service.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
+    // 配置请求头
+    // config.headers['Content-Type'] = 'application/json'
     return config
   },
   (error) => {

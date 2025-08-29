@@ -7,7 +7,8 @@ export const useUserStore = defineStore('user', {
     token: getToken(),
     name: '',
     avatar: '',
-    roles: []
+    roles: [],
+    userInfo: {}
   }),
   // 添加持久化存储配置
   persist: {
@@ -23,18 +24,14 @@ export const useUserStore = defineStore('user', {
   actions: {
     // 登录
     async login(userInfo) {
-      const { userNameOrEmailAddress, password } = userInfo
       try {
         const response = await login({
           ...userInfo
         })
-        // const { data } = {
-        //   data: {
-        //     token: '1234567890'
-        //   }
-        // }
+        console.log(response, '用户信息')
 
-        this.token = '1234567890'
+        this.token = response.accessToken
+        this.userInfo = response.user
         setToken(this.token)
         return Promise.resolve()
       } catch (error) {
@@ -68,10 +65,10 @@ export const useUserStore = defineStore('user', {
     // 登出
     async logout() {
       try {
-        // await logout(this.token)
         this.token = ''
         this.roles = []
         removeToken()
+        await logout()
         return Promise.resolve()
       } catch (error) {
         return Promise.reject(error)

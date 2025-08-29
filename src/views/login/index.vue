@@ -17,10 +17,10 @@
         <h3 class="title">{{ title }}</h3>
       </div>
 
-      <el-form-item prop="userNameOrEmailAddress">
+      <el-form-item prop="userNameOrEmail">
         <el-input
           ref="usernameRef"
-          v-model="loginForm.userNameOrEmailAddress"
+          v-model="loginForm.userNameOrEmail"
           placeholder="用户名"
           type="text"
           tabindex="1"
@@ -88,12 +88,12 @@ const passwordVisible = ref(false)
 const rememberMe = ref(true)
 
 const loginForm = ref({
-  userNameOrEmailAddress: 'admin',
-  password: '1q2w3E*'
+  userNameOrEmail: 'admin',
+  password: 'Admin123!'
 })
 
 const loginRules = {
-  userNameOrEmailAddress: [
+  userNameOrEmail: [
     { required: true, trigger: 'blur', message: '请输入用户名' },
     {
       validator: (rule, value, callback) => {

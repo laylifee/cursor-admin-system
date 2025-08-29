@@ -102,3 +102,85 @@
   opacity: 0;
   transform: scale(0.7);
 }
+/* Scale Animation */
+.dialog-scale-enter-active,
+.dialog-scale-leave-active,
+.dialog-scale-enter-active .el-dialog,
+.dialog-scale-leave-active .el-dialog {
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.dialog-scale-enter-from,
+.dialog-scale-leave-to {
+  opacity: 0;
+}
+
+.dialog-scale-enter-from .el-dialog,
+.dialog-scale-leave-to .el-dialog {
+  transform: scale(0.5);
+  opacity: 0;
+}
+
+// 波光效果按钮样式
+.ripple-button {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: all 0.3s ease;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(64, 158, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition:
+      width 0.6s ease,
+      height 0.6s ease;
+    z-index: -1;
+  }
+
+  &:hover:before {
+    width: 300px;
+    height: 300px;
+  }
+
+  // 添加额外的光晕效果
+  &:after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+      45deg,
+      transparent 40%,
+      rgba(64, 158, 255, 0.2) 50%,
+      transparent 60%
+    );
+    background-size: 200% 100%;
+    z-index: -1;
+    animation: shine 3s infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover:after {
+    opacity: 1;
+  }
+}
+
+// 光晕动画
+@keyframes shine {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
