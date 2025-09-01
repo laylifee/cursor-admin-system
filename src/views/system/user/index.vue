@@ -22,7 +22,7 @@
     <div class="table-container">
       <div class="table-header">
         <div class="header-title">
-          <h3>角色列表</h3>
+          <h3>用户列表</h3>
         </div>
         <div class="header-actions">
           <el-button class="ripple-button" @click="handleAdd"> 新增用户 </el-button>
@@ -45,17 +45,19 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="creationTime" label="创建时间">
+          <!-- <el-table-column prop="creationTime" label="创建时间">
             <template #default="{ row }">
               {{ row.creationTime ? dayjs(row.creationTime).format('YYYY-MM-DD HH:mm:ss') : '--' }}
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="操作" fixed="right">
             <template #default="{ row }">
               <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
               <el-button v-if="+row.code !== 1" type="danger" link @click="handleDelete(row)"
                 >删除</el-button
               >
+              <!-- 修改密码 -->
+              <el-button type="warning" link @click="handleChangePassword(row)">修改密码</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -83,6 +85,7 @@
       width="50%"
       :before-close="handleClose"
       transition="dialog-scale"
+      destroy-on-close
     >
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
         <el-row :gutter="20">
@@ -100,6 +103,9 @@
                 v-model="form.confirmPassword"
               />
             </el-form-item>
+            <el-form-item label="姓名" prop="name" v-if="isEdit">
+              <el-input placeholder="请输入姓名" v-model="form.name" />
+            </el-form-item>
             <!-- 状态 -->
             <el-form-item label="状态" prop="isActive">
               <el-radio-group v-model="form.isActive">
@@ -109,21 +115,52 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="姓名" prop="name">
+            <el-form-item label="姓名" prop="name" v-if="!isEdit">
               <el-input placeholder="请输入姓名" v-model="form.name" />
             </el-form-item>
             <el-form-item label="邮箱" prop="email">
-              <el-input placeholder="请输入邮箱" :disabled="isEdit" v-model="form.email" />
+              <el-input placeholder="请输入邮箱" v-model="form.email" />
             </el-form-item>
-            <el-form-item label="手机号" prop="phoneNumber">
+            <el-form-item label="手机号">
               <el-input placeholder="请输入手机号" v-model="form.phoneNumber" />
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button @click="handleCancel" ref="cancelBtn">取消</el-button>
         <el-button type="primary" @click="handleSubmit">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 修改密码弹窗 -->
+    <el-dialog
+      title="修改密码"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      v-model="passwordDialogVisible"
+      width="30%"
+      :before-close="handlePasswordClose"
+      transition="dialog-scale"
+      destroy-on-close
+    >
+      <el-form :model="passwordForm" :rules="passwordRules" ref="formRef2" label-width="100px">
+        <el-form-item label="用户名" prop="userName">
+          <el-input placeholder="请输入用户名" :disabled="true" v-model="passwordForm.userName" />
+        </el-form-item>
+        <el-form-item label="旧密码" prop="oldPassword">
+          <el-input placeholder="请输入旧密码" v-model="passwordForm.oldPassword" />
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPassword">
+          <el-input placeholder="请输入新密码" v-model="passwordForm.newPassword" />
+        </el-form-item>
+        <el-form-item label="确认新密码" prop="confirmNewPassword">
+          <el-input placeholder="请输入确认新密码" v-model="passwordForm.confirmNewPassword" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="handlePasswordCancel">取消</el-button>
+        <el-button type="primary" @click="handleChangePasswordSubmit">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -135,7 +172,14 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { db } from '@/utils/dbConfig.js'
 import { useTableHeight } from '@/utils/useTableHeight'
-import { getUserList, getUserDetail, editUser, deleteUser, addUser } from '@/api/user'
+import {
+  getUserList,
+  getUserDetail,
+  editUser,
+  deleteUser,
+  addUser,
+  updatePassword
+} from '@/api/user'
 import dayjs from 'dayjs'
 const loading = ref(false)
 const tableData = ref([])
@@ -145,7 +189,15 @@ const paramsForm = ref({
   MaxResultCount: 20
 })
 const { tableHeight, calculateTableHeight } = useTableHeight()
-
+const formRef2 = ref(null)
+const passwordDialogVisible = ref(false)
+const passwordForm = ref({
+  id: '',
+  oldPassword: '',
+  newPassword: '',
+  confirmNewPassword: '',
+  userName: ''
+})
 // 是否是编辑状态
 const isEdit = ref(false)
 // 新增弹窗
@@ -206,6 +258,22 @@ const rules = {
   ],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }]
 }
+const passwordRules = {
+  oldPassword: [{ required: true, message: '请输入旧密码', trigger: 'blur' }],
+  newPassword: [{ required: true, message: '请输入新密码', trigger: 'blur' }],
+  confirmNewPassword: [
+    {
+      validator: (rule, value, callback) => {
+        if (value !== passwordForm.value.newPassword) {
+          callback(new Error('两次输入密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+}
 // 新增表单ref
 const formRef = ref(null)
 // 搜索表单ref
@@ -246,11 +314,53 @@ const handleSubmit = () => {
     }
   })
 }
+// 修噶密码
+const handleChangePasswordSubmit = () => {
+  formRef2.value.validate(async (valid) => {
+    if (valid) {
+      const params = {
+        ...passwordForm.value
+      }
+      await updatePassword(params)
+      passwordDialogVisible.value = false
+      ElMessage.success('修改密码成功')
+    }
+  })
+}
 // 编辑
 const handleEdit = (row) => {
   form.value = { ...row }
   isEdit.value = true
   dialogVisible.value = true
+}
+const handleChangePassword = (row) => {
+  const { id, userName } = row
+  passwordForm.value.id = id
+  passwordForm.value.userName = userName
+  passwordDialogVisible.value = true
+}
+const handlePasswordCancel = () => {
+  formRef2.value.resetFields()
+  passwordDialogVisible.value = false
+  passwordForm.value = {
+    id: '',
+    oldPassword: '',
+    newPassword: '',
+    confirmNewPassword: '',
+    userName: ''
+  }
+}
+const handlePasswordClose = (done) => {
+  formRef2.value.resetFields()
+  passwordDialogVisible.value = false
+  passwordForm.value = {
+    id: '',
+    oldPassword: '',
+    newPassword: '',
+    confirmNewPassword: '',
+    userName: ''
+  }
+  done()
 }
 
 const handlePermission = (row) => {
@@ -275,15 +385,7 @@ const handleDelete = (row) => {
     type: 'warning'
   })
     .then(async () => {
-      // 如果登录超级管理员，不允许删除
-      if (row.code === '1') {
-        ElMessage.warning('超级管理员不允许删除')
-        return
-      }
-      // 软删除
-      await db.role.update(row.id, {
-        _deleted: 1
-      })
+      await deleteUser(row)
       getList()
       ElMessage.success('删除成功')
     })
@@ -306,16 +408,43 @@ const handleSearch = async () => {
   } finally {
     loading.value = false
   }
-
-  // 搜索完成后重新计算表格高度
-  calculateTableHeight()
 }
 // 关闭弹窗
 const handleClose = (done) => {
-  formRef.value.resetFields()
+  // 对于取消按钮的调用方式，确保正确重置表单
+  if (formRef.value) {
+    formRef.value.resetFields()
+  }
   isEdit.value = false
   dialogVisible.value = false
+  form.value = {
+    userName: '',
+    email: '',
+    phoneNumber: '',
+    password: '',
+    isActive: true,
+    name: '',
+    surname: '',
+    roleIds: []
+  }
   done()
+}
+const handleCancel = () => {
+  if (formRef.value) {
+    formRef.value.resetFields()
+  }
+  isEdit.value = false
+  dialogVisible.value = false
+  form.value = {
+    userName: '',
+    email: '',
+    phoneNumber: '',
+    password: '',
+    isActive: true,
+    name: '',
+    surname: '',
+    roleIds: []
+  }
 }
 
 const handleSizeChange = (val) => {
@@ -344,94 +473,6 @@ const resetSearch = () => {
   }
   currentPage.value = 1
   handleSearch()
-
-  // 重置搜索后重新计算表格高度
-  calculateTableHeight()
-}
-
-// 随机生成20条数据
-const generateRandomData = async () => {
-  ElMessageBox.confirm('确定要生成20条随机角色数据吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then(async () => {
-      loading.value = true
-      try {
-        // 角色名称和描述的随机词库
-        const roleNames = [
-          '管理员',
-          '编辑',
-          '作者',
-          '审核员',
-          '访客',
-          '用户',
-          '开发者',
-          '测试员',
-          '产品经理',
-          '设计师',
-          '运营',
-          '市场',
-          '销售',
-          '客服',
-          '财务',
-          '人事',
-          '主管',
-          '总监',
-          '经理',
-          '助理'
-        ]
-
-        const descriptions = [
-          '系统管理员，拥有所有权限',
-          '内容编辑，负责内容创作',
-          '文章作者，可以发布文章',
-          '内容审核，负责审核内容',
-          '只读权限，无法修改内容',
-          '普通用户，基础权限',
-          '系统开发人员，技术权限',
-          '质量测试，测试权限',
-          '产品规划，产品相关权限',
-          'UI/UX设计，设计相关权限',
-          '运营人员，运营相关权限',
-          '市场推广，市场相关权限',
-          '销售人员，销售相关权限',
-          '客户服务，客服相关权限',
-          '财务管理，财务相关权限',
-          '人事管理，人事相关权限',
-          '部门主管，管理权限',
-          '部门总监，高级管理权限',
-          '项目经理，项目管理权限',
-          '行政助理，行政相关权限'
-        ]
-
-        // 生成20条随机数据
-        for (let i = 0; i < 20; i++) {
-          const randomIndex = Math.floor(Math.random() * roleNames.length)
-          const name = `${roleNames[randomIndex]}${i + 1}`
-          const code = `role_${Date.now()}_${i}`
-          const status = Math.random() > 0.3 ? '1' : '0' // 70%概率为启用状态
-
-          await db.role.add({
-            name,
-            code,
-            description: descriptions[randomIndex],
-            status,
-            _deleted: 0
-          })
-        }
-
-        ElMessage.success('成功生成20条随机角色数据')
-        getList()
-      } catch (error) {
-        console.error('生成随机数据失败:', error)
-        ElMessage.error('生成随机数据失败')
-      } finally {
-        loading.value = false
-      }
-    })
-    .catch(() => {})
 }
 
 onMounted(() => {

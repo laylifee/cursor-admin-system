@@ -36,7 +36,7 @@ export function addUser(params) {
 // 用户管理-用户删除
 export function deleteUser(params) {
   return request({
-    url: '/identity/users/' + params.id,
+    url: '/irontracksys/identity/users/' + params.id,
     method: 'delete'
   })
 }
@@ -52,7 +52,15 @@ export function getInfo(token) {
 // 用户管理-登录
 export function login(data) {
   return request({
-    url: '/irontracksys/Login/login',
+    url: '/irontracksys/account/login',
+    method: 'post',
+    data
+  })
+}
+// 用户修改密码
+export function updatePassword(data) {
+  return request({
+    url: '/irontracksys/identity/users/' + data.id + '/change-password',
     method: 'post',
     data
   })
@@ -60,7 +68,7 @@ export function login(data) {
 // 用户管理-登出
 export function logout() {
   return request({
-    url: '/account/logout',
+    url: '/irontracksys/account/logout',
     method: 'post'
     // params: { token }
   })

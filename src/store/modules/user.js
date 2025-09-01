@@ -65,10 +65,10 @@ export const useUserStore = defineStore('user', {
     // 登出
     async logout() {
       try {
+        await logout()
         this.token = ''
         this.roles = []
         removeToken()
-        await logout()
         return Promise.resolve()
       } catch (error) {
         return Promise.reject(error)
