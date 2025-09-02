@@ -115,6 +115,16 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="角色" prop="roleIds">
+              <el-select v-model="form.roleIds" multiple filterable placeholder="请选择角色">
+                <el-option
+                  v-for="item in roleList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
             <el-form-item label="姓名" prop="name" v-if="!isEdit">
               <el-input placeholder="请输入姓名" v-model="form.name" />
             </el-form-item>
@@ -180,6 +190,7 @@ import {
   addUser,
   updatePassword
 } from '@/api/user'
+import { getRoleList } from '@/api/role'
 import dayjs from 'dayjs'
 const loading = ref(false)
 const tableData = ref([])
@@ -188,6 +199,7 @@ const paramsForm = ref({
   SkipCount: 1,
   MaxResultCount: 20
 })
+const roleList = ref([])
 const { tableHeight, calculateTableHeight } = useTableHeight()
 const formRef2 = ref(null)
 const passwordDialogVisible = ref(false)
@@ -211,11 +223,25 @@ const form = ref({
   isActive: true,
   name: '',
   surname: '',
-  roleIds: ['27f1b093-5a61-49c9-9c98-ad603d3ed193']
+  roleIds: []
 })
 // 新增表单验证规则
 const rules = {
-  userName: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
+  userName: [
+    { required: true, message: '请输入用户名称', trigger: 'blur' },
+
+    // 校验用户名只能是数字、字母或特殊符号
+    {
+      validator: (rule, value, callback) => {
+        if (!/^[a-zA-Z0-9_.*]+$/.test(value)) {
+          callback(new Error('用户名只能是数字、字母或特殊符号'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     {
@@ -256,7 +282,8 @@ const rules = {
       trigger: 'blur'
     }
   ],
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }]
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  roleIds: [{ required: true, message: '请选择角色', trigger: 'change' }]
 }
 const passwordRules = {
   oldPassword: [{ required: true, message: '请输入旧密码', trigger: 'blur' }],
@@ -295,8 +322,7 @@ const handleSubmit = () => {
         }
         delete params.confirmPassword
         await editUser(params)
-        dialogVisible.value = false
-        isEdit.value = false
+        handleCancel()
         getList()
         ElMessage.success('编辑角色成功')
         return
@@ -307,8 +333,7 @@ const handleSubmit = () => {
       }
       delete data.confirmPassword
       await addUser(data)
-      dialogVisible.value = false
-      isEdit.value = false
+      handleCancel()
       getList()
       ElMessage.success('新增角色成功')
     }
@@ -322,7 +347,7 @@ const handleChangePasswordSubmit = () => {
         ...passwordForm.value
       }
       await updatePassword(params)
-      passwordDialogVisible.value = false
+      handlePasswordCancel()
       ElMessage.success('修改密码成功')
     }
   })
@@ -363,15 +388,18 @@ const handlePasswordClose = (done) => {
   done()
 }
 
-const handlePermission = (row) => {
-  ElMessage.info('权限配置功能开发中')
+// 获取所有角色
+const getAllRoleList = async () => {
+  let data = await getRoleList({
+    SkipCount: 0,
+    MaxResultCount: 1000
+  })
+  roleList.value = data?.items ?? []
 }
 const getList = async () => {
   loading.value = true
   try {
     handleSearch()
-    // 数据加载完成后重新计算表格高度
-    calculateTableHeight()
   } catch (error) {
     console.error('获取角色列表失败:', error)
   } finally {
@@ -406,6 +434,8 @@ const handleSearch = async () => {
   } catch (error) {
     console.error('获取角色列表失败:', error)
   } finally {
+    // 数据加载完成后重新计算表格高度
+    calculateTableHeight()
     loading.value = false
   }
 }
@@ -448,12 +478,13 @@ const handleCancel = () => {
 }
 
 const handleSizeChange = (val) => {
-  pageSize.value = val
+  paramsForm.value.MaxResultCount = val
+  paramsForm.value.SkipCount = 1
   getList()
 }
 
 const handleCurrentChange = (val) => {
-  currentPage.value = val
+  paramsForm.value.SkipCount = val
   getList()
 }
 
@@ -467,16 +498,18 @@ const resetSearch = () => {
   if (searchFormRef.value) {
     searchFormRef.value.resetFields()
   }
-  searchForm.value = {
+  paramsForm.value = {
+    SkipCount: 1,
+    MaxResultCount: 20,
     name: '',
     code: ''
   }
-  currentPage.value = 1
   handleSearch()
 }
 
 onMounted(() => {
   getList()
+  getAllRoleList()
 })
 </script>
 

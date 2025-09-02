@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout } from '@/api/user'
 
 export const useUserStore = defineStore('user', {
   state: () => ({

@@ -41,14 +41,6 @@ export function deleteUser(params) {
   })
 }
 
-// 用户管理-用户信息
-export function getInfo(token) {
-  return request({
-    url: '/account/my-profile',
-    method: 'get',
-    params: { token }
-  })
-}
 // 用户管理-登录
 export function login(data) {
   return request({
