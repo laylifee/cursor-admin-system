@@ -19,7 +19,7 @@
           v-for="icon in icons"
           :key="icon"
           class="icon-item"
-          :class="{ active: selectedIcon === icon }"
+          :class="{ active: selectedIcon === icon, select: tempSelectedIcon === icon }"
           @click="selectIcon(icon)"
         >
           <el-icon>
@@ -59,6 +59,8 @@ const tempSelectedIcon = ref('')
 const icons = Object.keys(ElementPlusIconsVue)
 
 const selectIcon = (icon) => {
+  console.log('选择图标', icon)
+  if (icon === selectedIcon.value) return
   tempSelectedIcon.value = icon
 }
 
@@ -66,6 +68,7 @@ const confirmSelection = () => {
   selectedIcon.value = tempSelectedIcon.value
   emit('update:modelValue', selectedIcon.value)
   dialogVisible.value = false
+  tempSelectedIcon.value = ''
 }
 </script>
 
@@ -100,6 +103,10 @@ const confirmSelection = () => {
 
 .icon-item.active {
   border-color: #409eff;
+  background-color: #ecf5ff;
+}
+.icon-item.select {
+  border-color: #12e2a4;
   background-color: #ecf5ff;
 }
 

@@ -17,6 +17,12 @@ db.version(1).stores({
   menu: '++id, name, description, createTime, updateTime, path, icon, parentId, sort, status, remark'
 })
 
+// 更新数据库模式版本，添加新字段
+db.version(2).stores({
+  // 添加菜单表的新字段
+  menu: '++id, name, description, createTime, updateTime, path, icon, parentId, sort, status, remark, permission, component, rolePermission, externalLink, activePath, badge, isEnabled, isCache, isHidden, isEmbedded, showBadge, fixedTag, hiddenTag'
+})
+
 // 初始化数据库
 async function initDb() {
   try {
