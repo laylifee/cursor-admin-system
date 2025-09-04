@@ -95,6 +95,39 @@
         <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 权限配置弹窗 -->
+    <el-dialog
+      title="角色权限配置"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      v-model="permissionVisible"
+      width="40%"
+      destroy-on-close
+      :before-close="handleRolePermissionClose"
+    >
+      <div v-if="currentRole">
+        <div class="permission-content">
+          <el-tree
+            :default-checked-keys="defaultSelectedMenuIds"
+            :data="menuTreeData"
+            show-checkbox
+            node-key="id"
+            :props="{
+              children: 'children',
+              label: 'name'
+            }"
+            ref="menuTree"
+            @check-change="handleCheckChange"
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <el-button @click="handleRolePermissionCancel">取消</el-button>
+        <el-button type="primary" @click="savePermission">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -103,6 +136,7 @@ import { onMounted, ref, nextTick, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getRoleList, addRole, deleteRole, updateRole, getRoleDetail } from '@/api/role'
+import { getPermissionList, getRolePermissions, assignRolePermissions } from '@/api/permission'
 import { useTableHeight } from '@/utils/useTableHeight'
 const loading = ref(false)
 const tableData = ref()
@@ -130,6 +164,10 @@ const rules = {
 const formRef = ref(null)
 // 搜索表单ref
 const searchFormRef = ref(null)
+// 菜单树ref
+const menuTree = ref(null)
+// 当前激活的标签页
+const activeTab = ref('menu')
 const handleAdd = () => {
   formRef.value && formRef.value.resetFields()
   isEdit.value = false
@@ -194,8 +232,104 @@ const handlerRoleCancel = () => {
     description: ''
   }
 }
+// 当前选中的角色
+const currentRole = ref(null)
+// 权限配置弹窗
+const permissionVisible = ref(false)
+// 菜单权限数据
+const menuTreeData = ref([])
+// 按钮权限数据
+const buttonData = ref([])
+// 选中的菜单权限
+const selectedMenuIds = ref([])
+// 默认选中的菜单权限
+const defaultSelectedMenuIds = ref([])
+// 选中的按钮权限
+const selectedButtonIds = ref([])
+
+// 权限配置
 const handlePermission = (row) => {
-  ElMessage.info('权限配置功能开发中')
+  currentRole.value = row
+  permissionVisible.value = true
+  loadPermissions()
+  loadRolePermissions()
+}
+
+// 加载权限数据
+const loadPermissions = async () => {
+  try {
+    // 加载菜单列表
+    const menuRes = await getPermissionList({
+      SkipCount: 0,
+      MaxResultCount: 999
+    })
+    if (menuRes?.items && menuRes?.items.length > 0) {
+      menuTreeData.value = buildTree(menuRes?.items)
+    } else {
+      menuTreeData.value = []
+    }
+  } catch (error) {
+    console.error('加载权限数据失败:', error)
+    ElMessage.error('加载权限数据失败')
+  }
+}
+// 加载角色已有的权限
+const loadRolePermissions = async () => {
+  try {
+    const res = await getRolePermissions(currentRole.value.id)
+    defaultSelectedMenuIds.value = res?.permissions.map((item) => item.id)
+    selectedMenuIds.value = defaultSelectedMenuIds.value
+    console.log('角色已有的权限', res)
+  } catch (error) {
+    console.error('加载角色已有的权限失败:', error)
+    ElMessage.error('加载角色已有的权限失败')
+  }
+}
+// 构建树形结构
+const buildTree = (data, parentId = null) => {
+  return data
+    .filter((item) => item.parentId === parentId)
+    .map((item) => ({
+      ...item,
+      children: buildTree(data, item.id)
+    }))
+}
+
+// 处理节点选中状态变化
+const handleCheckChange = (data, checked, indeterminate) => {
+  // console.log('节点选中状态变化:', data, checked, indeterminate)
+  console.log('选中的菜单权限:', menuTree.value.getCheckedNodes())
+  selectedMenuIds.value = menuTree.value.getCheckedNodes().map((item) => item.id)
+}
+const handleRolePermissionClose = (done) => {
+  selectedMenuIds.value = []
+  defaultSelectedMenuIds.value = []
+  permissionVisible.value = false
+  done()
+}
+const handleRolePermissionCancel = () => {
+  selectedMenuIds.value = []
+  defaultSelectedMenuIds.value = []
+  permissionVisible.value = false
+}
+// 保存权限配置
+const savePermission = async () => {
+  try {
+    if (selectedMenuIds.value.length === 0) {
+      ElMessage.error('请选择菜单权限')
+      return
+    }
+    // 分配菜单权限
+    await assignRolePermissions({
+      roleId: currentRole.value.id,
+      permissionIds: selectedMenuIds.value
+    })
+    permissionVisible.value = false
+    ElMessage.success('权限配置保存成功')
+  } catch (error) {
+    console.error('保存权限配置失败:', error)
+    ElMessage.error('保存权限配置失败')
+  }
 }
 const getList = async () => {
   loading.value = true
@@ -271,4 +405,38 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.permission-dialog-header {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f5f7fa;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.permission-tabs {
+  margin-top: 12px;
+}
+
+.permission-content {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.button-item {
+  margin-bottom: 8px;
+}
+
+.empty-tips {
+  text-align: center;
+  color: #909399;
+  padding: 40px 0;
+}
+
+.el-tree {
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+  padding: 8px;
+}
+</style>

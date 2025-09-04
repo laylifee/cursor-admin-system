@@ -17,10 +17,13 @@ export const calculateTableHeight = () => {
       const tableContainer = document.querySelector('.table-content')
 
       if (appContainer) {
+        console.log('paginationContainer', paginationContainer)
         const appContainerHeight = appContainer.clientHeight
         const searchContainerHeight = searchContainer ? searchContainer.clientHeight : 0
         const tableHeaderHeight = tableHeader ? tableHeader.clientHeight : 0
-        const paginationContainerHeight = paginationContainer ? paginationContainer.clientHeight : 0
+        const paginationContainerHeight = paginationContainer
+          ? paginationContainer.clientHeight
+          : -60
 
         // 计算表格高度，留出一些边距，并确保表格内容完整显示
         // 减少边距，确保最后一行不被遮挡
@@ -30,15 +33,15 @@ export const calculateTableHeight = () => {
           tableHeaderHeight -
           paginationContainerHeight -
           52
-
+        console.log('height', height)
         // 优化：当窗口缩小时，考虑实际的tableContainer高度，防止计算高度大于实际可用空间
         if (tableContainer && tableContainer.parentElement) {
           const parentHeight = tableContainer.parentElement.clientHeight
           // 确保计算的高度不超过父容器的可用空间（减去header）
           if (tableHeader) {
-            const availableHeight = parentHeight - tableHeaderHeight - 60 // 40为额外边距
-            if (height > availableHeight) {
-              height = availableHeight
+            let availableHeight = parentHeight - tableHeaderHeight - 60 // 40为额外边距
+            if (!paginationContainer) {
+              availableHeight = availableHeight + 45
             }
             height = availableHeight
           }

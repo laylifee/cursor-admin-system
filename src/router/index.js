@@ -71,12 +71,6 @@ export const constantRoutes = [
         meta: { title: '角色管理', keepAlive: true, icon: 'UserFilled', roles: ['admin'] }
       },
       {
-        path: '/system/permission',
-        name: 'Permission',
-        component: () => import('@/views/system/permission/index.vue'),
-        meta: { title: '权限管理', icon: 'lock' }
-      },
-      {
         path: '/system/menu',
         name: 'Route',
         component: () => import('@/views/system/menu/index.vue'),

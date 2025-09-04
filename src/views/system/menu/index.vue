@@ -38,6 +38,7 @@
           style="width: 100%"
           v-loading="loading"
           row-key="id"
+          :height="tableHeight"
           :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         >
           <el-table-column prop="name" label="菜单名称" min-width="200">
@@ -67,6 +68,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="menuPath" label="路由地址" min-width="200" />
+          <el-table-column prop="permissionKey" label="权限标识" min-width="100" />
           <el-table-column prop="externalLink" label="外部链接" min-width="200" />
           <el-table-column prop="sort" label="排序" min-width="100" />
           <!-- 是否禁用 -->
@@ -86,16 +88,33 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" fixed="right" min-width="200">
+          <el-table-column label="操作" fixed="right" min-width="150">
             <template #default="{ row }">
-              <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-              <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+              <el-button
+                v-if="row.menuType !== '2'"
+                class="plain-icon-button"
+                type="primary"
+                :icon="Plus"
+                @click="handleAddChildren(row)"
+              />
+              <el-button
+                class="plain-icon-button"
+                type="primary"
+                :icon="Edit"
+                @click="handleEdit(row)"
+              />
+              <el-button
+                class="plain-icon-button"
+                type="danger"
+                :icon="Delete"
+                @click="handleDelete(row)"
+              />
             </template>
           </el-table-column>
         </el-table>
       </div>
       <!-- 分页 -->
-      <div class="pagination-container">
+      <!-- <div class="pagination-container">
         <el-pagination
           v-model:current-page="searchForm.SkipCount"
           :page-sizes="[20, 30, 40, 50]"
@@ -105,12 +124,12 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
-      </div>
+      </div> -->
     </div>
 
     <!-- 新增/编辑菜单弹窗 -->
     <el-dialog
-      :title="isEdit ? '编辑菜单' : '新增菜单'"
+      :title="isEdit ? '编辑' : '新增'"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       v-model="dialogVisible"
@@ -123,7 +142,11 @@
       <el-form :model="form" :rules="rules" ref="formRef" inline label-width="100px">
         <div>
           <el-form-item label="菜单类型">
-            <el-radio-group v-model="form.menuType" size="large" :disabled="!isEdit">
+            <el-radio-group
+              v-model="form.menuType"
+              size="large"
+              :disabled="(!isEdit && !form.parentId) || isEdit"
+            >
               <el-radio-button label="菜单" value="1" />
               <el-radio-button label="权限" value="2" />
             </el-radio-group>
@@ -189,70 +212,16 @@
         <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
-
-    <!-- 菜单控制弹窗 -->
-    <el-dialog
-      title="菜单控制"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      v-model="menuControlVisible"
-      width="60%"
-      :before-close="handleMenuControlClose"
-      transition="dialog-scale"
-      destroy-on-close
-    >
-      <el-tree
-        ref="menuTree"
-        :data="allMenus"
-        node-key="id"
-        show-checkbox
-        default-expand-all
-        :props="defaultProps"
-        v-model:checked-keys="selectedMenuIds"
-      />
-      <template #footer>
-        <el-button @click="handleMenuControlCancel">取消</el-button>
-        <el-button type="primary" @click="handleMenuControlSubmit">确定</el-button>
-      </template>
-    </el-dialog>
-
-    <!-- 按钮控制弹窗 -->
-    <el-dialog
-      title="按钮控制"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      v-model="buttonControlVisible"
-      width="40%"
-      :before-close="handleButtonControlClose"
-      transition="dialog-scale"
-      destroy-on-close
-    >
-      <el-checkbox-group v-model="selectedButtonIds" class="button-checkbox-group">
-        <el-checkbox
-          v-for="button in buttonList"
-          :key="button.id"
-          :label="button.id"
-          class="button-checkbox-item"
-        >
-          {{ button.name }} ({{ button.code }})
-        </el-checkbox>
-      </el-checkbox-group>
-      <template #footer>
-        <el-button @click="handleButtonControlCancel">取消</el-button>
-        <el-button type="primary" @click="handleButtonControlSubmit">确定</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElSwitch, ElInputNumber } from 'element-plus'
-import { Refresh } from '@element-plus/icons-vue'
-
+import { Refresh, Edit, Delete, Plus } from '@element-plus/icons-vue'
+import { useTableHeight } from '@/utils/useTableHeight'
 import SearchWrapper from '@/components/SearchWrapper.vue'
 import IconSelector from '@/components/IconSelector.vue'
-import { initMenuData } from '@/utils/initMenuData.js'
 import {
   getPermissionList,
   getPermissionDetail,
@@ -260,19 +229,20 @@ import {
   editPermission,
   deletePermission
 } from '@/api/permission'
+
+const { tableHeight, calculateTableHeight } = useTableHeight()
 // 表格相关数据
 const loading = ref(false)
 const tableData = ref([])
 const allMenus = ref([])
 const total = ref(0)
-const tableHeight = 600
 
 // 搜索表单
 const searchForm = ref({
   name: '',
   path: '',
   SkipCount: 1,
-  MaxResultCount: 20
+  MaxResultCount: 999
 })
 const searchFormRef = ref(null)
 
@@ -290,7 +260,7 @@ const form = ref({
   externalLink: '', // 外部链接
   sort: 0,
   parentId: null,
-  isEnabled: true, // 是否启用
+  isEnabled: false, // 是否启用
   keepAlive: true, // 页面缓存
   hidden: false, // 菜单隐藏
   internal: false, // 是否内嵌
@@ -337,12 +307,17 @@ const getList = async () => {
       MaxResultCount: searchForm.value.MaxResultCount
     }
     const res = await getPermissionList(params)
-    tableData.value = res?.items ?? []
+    if (res?.items && res?.items.length > 0) {
+      tableData.value = buildTree(res?.items)
+    } else {
+      tableData.value = []
+    }
     total.value = res?.totalCount ?? 0
   } catch (error) {
     console.error('获取菜单列表失败:', error)
     ElMessage.error('获取菜单列表失败')
   } finally {
+    calculateTableHeight()
     loading.value = false
   }
 }
@@ -355,40 +330,6 @@ const buildTree = (data, parentId = null) => {
       ...item,
       children: buildTree(data, item.id)
     }))
-}
-
-// 根据名称过滤树
-const filterTreeByName = (tree, name) => {
-  return tree
-    .map((node) => {
-      const newNode = { ...node }
-      if (newNode.children) {
-        newNode.children = filterTreeByName(newNode.children, name)
-      }
-      return newNode
-    })
-    .filter((node) => {
-      const nameMatch = node.name && node.name.toLowerCase().includes(name.toLowerCase())
-      const hasMatchingChild = node.children && node.children.length > 0
-      return nameMatch || hasMatchingChild
-    })
-}
-
-// 根据路径过滤树
-const filterTreeByPath = (tree, path) => {
-  return tree
-    .map((node) => {
-      const newNode = { ...node }
-      if (newNode.children) {
-        newNode.children = filterTreeByPath(newNode.children, path)
-      }
-      return newNode
-    })
-    .filter((node) => {
-      const pathMatch = node.path && node.path.toLowerCase().includes(path.toLowerCase())
-      const hasMatchingChild = node.children && node.children.length > 0
-      return pathMatch || hasMatchingChild
-    })
 }
 
 // 分页处理
@@ -434,7 +375,31 @@ const handleAdd = (row = null) => {
     externalLink: '', // 外部链接
     sort: 0,
     parentId: null,
-    isEnabled: true, // 是否启用
+    isEnabled: false, // 是否启用
+    keepAlive: true, // 页面缓存
+    hidden: false, // 菜单隐藏
+    internal: false, // 是否内嵌
+    affix: false // 固定标签
+  }
+  dialogVisible.value = true
+}
+
+// 新增子菜单或者按钮权限
+const handleAddChildren = (row) => {
+  isEdit.value = false
+  formRef.value && formRef.value.resetFields()
+  form.value = {
+    menuType: '1',
+    id: '',
+    name: '',
+    menuIcon: '',
+    permissionKey: '', // 权限标识
+    menuPath: '',
+    componentPath: '', // 组件路径
+    externalLink: '', // 外部链接
+    sort: 0,
+    parentId: row.id,
+    isEnabled: false, // 是否启用
     keepAlive: true, // 页面缓存
     hidden: false, // 菜单隐藏
     internal: false, // 是否内嵌
@@ -446,24 +411,8 @@ const handleAdd = (row = null) => {
 // 编辑菜单
 const handleEdit = (row) => {
   isEdit.value = true
-  menuType.value = 'menu'
   form.value = {
-    ...row,
-    // 确保所有字段都有值
-    permission: row.permission || '',
-    component: row.component || '',
-    icon: row.icon || '',
-    rolePermission: row.rolePermission || '',
-    externalLink: row.externalLink || '',
-    activePath: row.activePath || '',
-    badge: row.badge || '',
-    isEnabled: row.isEnabled !== undefined ? row.isEnabled : true,
-    isCache: row.isCache !== undefined ? row.isCache : true,
-    isHidden: row.isHidden || false,
-    isEmbedded: row.isEmbedded || false,
-    showBadge: row.showBadge || false,
-    fixedTag: row.fixedTag || false,
-    hiddenTag: row.hiddenTag || false
+    ...row
   }
   dialogVisible.value = true
 }
@@ -478,6 +427,8 @@ const handleSubmit = () => {
         }
         console.log('提交参数', params)
         if (isEdit.value) {
+          delete params.children
+          await editPermission(params)
           ElMessage.success('编辑菜单成功')
         } else {
           delete params.id
@@ -511,50 +462,6 @@ const handleDelete = (row) => {
     .catch(() => {})
 }
 
-// 菜单控制
-const handleMenuControl = (row) => {
-  currentMenu.value = row
-  // 这里可以从数据库获取当前菜单的权限配置
-  // 简化实现，这里使用模拟数据
-  selectedMenuIds.value = []
-  menuControlVisible.value = true
-}
-
-// 按钮控制
-const handleButtonControl = (row) => {
-  currentMenu.value = row
-  // 这里可以从数据库获取当前菜单的按钮配置
-  // 简化实现，这里使用模拟数据
-  selectedButtonIds.value = []
-  buttonControlVisible.value = true
-}
-
-// 提交菜单控制
-const handleMenuControlSubmit = async () => {
-  try {
-    // 这里应该保存菜单的权限配置到数据库
-    // 简化实现，这里只显示成功消息
-    ElMessage.success('菜单控制配置保存成功')
-    menuControlVisible.value = false
-  } catch (error) {
-    console.error('保存菜单控制配置失败:', error)
-    ElMessage.error('保存失败')
-  }
-}
-
-// 提交按钮控制
-const handleButtonControlSubmit = async () => {
-  try {
-    // 这里应该保存菜单的按钮配置到数据库
-    // 简化实现，这里只显示成功消息
-    ElMessage.success('按钮控制配置保存成功')
-    buttonControlVisible.value = false
-  } catch (error) {
-    console.error('保存按钮控制配置失败:', error)
-    ElMessage.error('保存失败')
-  }
-}
-
 // 弹窗关闭处理
 const handleClose = (done) => {
   dialogVisible.value = false
@@ -585,7 +492,6 @@ const handleButtonControlCancel = () => {
 
 // 初始化
 onMounted(async () => {
-  await initMenuData()
   getList()
 })
 </script>
