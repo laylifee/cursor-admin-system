@@ -23,23 +23,20 @@ import { useAppStore } from '@/store/modules/app'
 import { constantRoutes } from '@/router'
 import SidebarItem from './SidebarItem.vue'
 import { useUserStore } from '@/store/modules/user'
+import { usePermissionStore } from '@/store/modules/permission.js'
 
 const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 
 const isCollapse = computed(() => !appStore.sidebar.opened)
 
 const routes = computed(() => {
-  return constantRoutes.filter((route) => {
-    if (route.hidden) return false
-
-    // 检查是否有权限访问该路由
-    if (route.meta && route.meta.roles) {
-      return route.meta.roles.some((role) => userStore.roles.includes(role))
-    }
-    return true
-  })
+  // 合并 constantRoutes 和动态路由 (addRoutes)
+  const allRoutes = [...permissionStore.routes]
+  console.log('allRoutes所有的路由:', allRoutes)
+  return allRoutes.filter((route) => route.meta && !route.meta.hidden)
 })
 const handleResize = () => {
   if (window.innerWidth < 992) {

@@ -35,8 +35,8 @@ const goBack = () => {
   router.back()
 }
 
-const logout = () => {
-  userStore.logout()
+const logout = async () => {
+  await userStore.logout()
   router.push('/login')
 }
 </script>

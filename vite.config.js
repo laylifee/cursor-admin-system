@@ -11,7 +11,7 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     // 项目基础路径
-    base: env.VITE_APP_BASE_URL,
+    base: '/',
 
     // 插件配置
     plugins: [

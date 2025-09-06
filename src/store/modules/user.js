@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { login, logout } from '@/api/user'
+import { usePermissionStore } from './permission.js'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -66,9 +67,9 @@ export const useUserStore = defineStore('user', {
     async logout() {
       try {
         await logout()
-        this.token = ''
-        this.roles = []
-        removeToken()
+        this.resetToken()
+        const permissionStore = usePermissionStore()
+        permissionStore.resetRoutes()
         return Promise.resolve()
       } catch (error) {
         return Promise.reject(error)

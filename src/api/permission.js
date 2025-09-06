@@ -86,3 +86,14 @@ export const assignRolePermissions = (data) => {
     data
   })
 }
+
+// 获取用户的所有角色菜单
+export const getUserRoleMenus = (userId) => {
+  return request({
+    url: `/irontracksys/identity/permissions/user-permissions`,
+    method: 'get',
+    params: {
+      UserId: userId
+    }
+  })
+}

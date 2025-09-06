@@ -69,6 +69,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/store/modules/user'
+import { usePermissionStore } from '@/store/modules/permission'
 import { User, Lock, View, Hide } from '@element-plus/icons-vue'
 import { validUsername, validPassword } from '@/utils/validate'
 import { ElMessage } from 'element-plus'
@@ -79,6 +80,7 @@ const title = computed(() => {
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 
 const loginFormRef = ref(null)
 const usernameRef = ref(null)
@@ -131,7 +133,8 @@ const handleLogin = () => {
           rememberMe: rememberMe.value
         }
         await userStore.login(params)
-        await userStore.getInfo()
+        // await userStore.getInfo()
+        // await permissionStore.getRoleMenus(userStore.userInfo.id)
         const redirect = route.query.redirect || '/'
         router.replace(redirect)
         ElMessage.success('登录成功')

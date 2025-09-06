@@ -51,18 +51,18 @@
             <template #default="{ row }">
               <el-tag
                 :type="
-                  row.menuType === '1' && row.parentId
-                    ? 'primary'
+                  row.menuType === '1' && row?.children?.length && !row.parentId
+                    ? 'info'
                     : row.menuType === '2'
                       ? 'success'
-                      : 'info'
+                      : 'primary'
                 "
                 >{{
-                  row.menuType === '1' && row.parentId
-                    ? '菜单'
+                  row.menuType === '1' && row?.children?.length && !row.parentId
+                    ? '目录'
                     : row.menuType === '2'
                       ? '按钮'
-                      : '目录'
+                      : '菜单'
                 }}</el-tag
               >
             </template>

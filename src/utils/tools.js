@@ -1,4 +1,5 @@
 import { nextTick } from 'vue'
+import { constantRoutes, asyncRoutes } from '@/router/index.js'
 
 /** @param {string} str - 要转换的字符串 */
 export const capitalizeFirstLetter = (str) => {
@@ -60,4 +61,14 @@ export const calculateTableHeight = () => {
       }
     })
   })
+}
+
+// 构建树形结构
+export const buildMenuTree = (data, parentId = null) => {
+  return data
+    .filter((item) => item.parentId === parentId)
+    .map((item) => ({
+      ...item,
+      children: buildMenuTree(data, item.id)
+    }))
 }

@@ -11,7 +11,7 @@ import App from './App.vue'
 import router from './router'
 import './styles/index.scss' // 引入全局样式
 import './router/permission' // 引入路由守卫
-
+import { usePermissionStore } from '@/store/modules/permission'
 const app = createApp(App)
 
 // 注册 Element Plus 图标
@@ -24,6 +24,10 @@ app.component('SearchWrapper', SearchWrapper)
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
+
+// 应用启动时初始化路由存储
+const routeStore = usePermissionStore()
+routeStore.loadMenuRoutesFromStorage()
 
 // 全局挂载 ElMessage
 // app.config.globalProperties.$message = ElMessage

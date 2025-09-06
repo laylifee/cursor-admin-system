@@ -9,7 +9,7 @@
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <el-avatar :size="30" :src="userStore.avatar" />
-          <span class="user-name">{{ userStore.name }}</span>
+          <span class="user-name">{{ userStore?.userInfo?.name }}</span>
           <el-icon><CaretBottom /></el-icon>
         </div>
 

@@ -57,7 +57,7 @@ const hasSingleChild = (item) => {
 
 const isHidden = (item) => {
   // 判断路由是否隐藏，默认不隐藏
-  return item.meta && item.meta.hidden === true
+  return item.hidden
 }
 
 const isDisabled = (item) => {
@@ -66,6 +66,7 @@ const isDisabled = (item) => {
 }
 
 const handleClick = (path) => {
+  console.log('点击的路由:', path)
   router.push(path)
 }
 </script>

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import Layout from '@/layout/index.vue'
 /***
  * 
@@ -47,10 +47,34 @@ export const constantRoutes = [
         path: '/dashboard',
         name: 'Dashboard',
         component: () => import('@/views/dashboard/index.vue'),
-        meta: { title: '仪表盘', icon: 'Odometer', roles: ['admin', 'editor'], affix: true }
+        meta: {
+          title: '仪表盘',
+          hidden: false,
+          icon: 'Odometer',
+          roles: ['admin', 'editor'],
+          affix: true
+        }
       }
     ]
   },
+
+  {
+    path: '/404',
+    name: '404',
+    meta: { title: '404', icon: '404' },
+    component: () => import('@/views/error-page/404.vue'),
+    hidden: true
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    redirect: '/404',
+    hidden: true,
+    meta: { title: '404', icon: '404' }
+  }
+]
+
+export const asyncRoutes = [
   {
     path: '/system',
     component: Layout,
@@ -93,24 +117,63 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/404',
-    name: '404',
-    meta: { title: '404', icon: '404' },
-    component: () => import('@/views/error-page/404.vue'),
-    hidden: true
+    path: '/test/1',
+    name: 'Test1',
+    component: () => import('@/views/test/index.vue'),
+    meta: { title: '测试1', icon: 'Test', roles: ['admin'] }
   },
   {
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    redirect: '/404',
-    hidden: true,
-    meta: { title: '404', icon: '404' }
+    path: '/test/2',
+    name: 'Test2',
+    component: Layout,
+    meta: { title: '测试2', icon: 'Test', roles: ['admin'] },
+    children: [
+      {
+        path: '/test/2/1',
+        name: 'Test21',
+        component: () => import('@/views/test/index.vue'),
+        meta: { title: '测试21', icon: 'Test', roles: ['admin'] }
+      },
+      {
+        path: '/test/2/2',
+        name: 'Test22',
+        component: () => import('@/views/test/index.vue'),
+        meta: { title: '测试22', icon: 'Test', roles: ['admin'] }
+      },
+      {
+        path: '/test/2/3',
+        name: 'Test23',
+        component: () => import('@/views/test/index.vue'),
+        meta: { title: '测试23', icon: 'Test', roles: ['admin'] }
+      }
+    ]
+  },
+  {
+    path: '/test/3',
+    name: 'Test3',
+    component: Layout,
+    meta: { title: '测试3', icon: 'Test', roles: ['admin'] },
+    children: [
+      {
+        path: '/test/3/1',
+        name: 'Test31',
+        component: () => import('@/views/test/index.vue'),
+        meta: { title: '测试31', icon: 'Test', roles: ['admin'] }
+      }
+    ]
+  },
+  {
+    path: '/test/4',
+    name: 'Test4',
+    component: () => import('@/views/test/index.vue'),
+    meta: { title: '测试4', icon: 'Test', roles: ['admin'] }
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes: constantRoutes,
+  // history: createWebHistory(),
+  history: createWebHashHistory(),
+  routes: constantRoutes.concat(asyncRoutes),
   scrollBehavior: () => ({ top: 0 })
 })
 
