@@ -2,9 +2,14 @@
   <section class="app-main">
     <router-view v-slot="{ Component, route }">
       <transition name="fade-transform" mode="out-in">
-        <keep-alive :include="cachedViews">
+        <!-- <keep-alive :include="cachedViews">
+          <component :is="Component" :key="route.fullPath" />
+        </keep-alive> -->
+        <!-- 通过route.meta.keepAlive判断是否缓存组件 -->
+        <keep-alive v-if="route.meta.keepAlive">
           <component :is="Component" :key="route.fullPath" />
         </keep-alive>
+        <component v-else :is="Component" :key="route.fullPath" />
       </transition>
     </router-view>
   </section>

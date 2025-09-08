@@ -6,6 +6,7 @@ import Layout from '@/layout/index.vue'
         path: '/system/user',
         name: 'User', //保持唯一性
         component: () => import('@/views/system/user/index.vue'),
+        hidden: false, 是否显示在侧边栏 默认是false
         meta: { title: '用户管理', keepAlive: true, icon: 'User', roles: ['admin'] }
       },
       meta:{
@@ -13,7 +14,6 @@ import Layout from '@/layout/index.vue'
       keepAlive: false, 默认是不缓存 true 缓存
       icon: 'User', 图标
       affix: false tag标签是否是否固定
-      hidden: false 是否显示在侧边栏 默认是false
       }
  * 
  */
@@ -36,6 +36,24 @@ export const constantRoutes = [
     hidden: true,
     meta: { title: '登录' }
   },
+
+  {
+    path: '/404',
+    name: '404',
+    meta: { title: '404', icon: '404' },
+    component: () => import('@/views/error-page/404.vue'),
+    hidden: true
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    redirect: '/404',
+    hidden: true,
+    meta: { title: '404', icon: '404' }
+  }
+]
+
+export const asyncRoutes = [
   {
     path: '/',
     component: Layout,
@@ -57,24 +75,6 @@ export const constantRoutes = [
       }
     ]
   },
-
-  {
-    path: '/404',
-    name: '404',
-    meta: { title: '404', icon: '404' },
-    component: () => import('@/views/error-page/404.vue'),
-    hidden: true
-  },
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    redirect: '/404',
-    hidden: true,
-    meta: { title: '404', icon: '404' }
-  }
-]
-
-export const asyncRoutes = [
   {
     path: '/system',
     component: Layout,

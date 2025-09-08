@@ -399,7 +399,7 @@ const getAllRoleList = async () => {
 const getList = async () => {
   loading.value = true
   try {
-    handleSearch()
+    await handleSearch()
   } catch (error) {
     console.error('获取角色列表失败:', error)
   } finally {
@@ -426,7 +426,6 @@ const handleSearch = async () => {
       ...paramsForm.value
     }
     params.SkipCount = (paramsForm.value.SkipCount - 1) * paramsForm.value.MaxResultCount
-    loading.value = true
     const data = await getUserList(params)
     console.log(data, '获取角色列表')
     tableData.value = data.items ?? []
@@ -436,7 +435,6 @@ const handleSearch = async () => {
   } finally {
     // 数据加载完成后重新计算表格高度
     calculateTableHeight()
-    loading.value = false
   }
 }
 // 关闭弹窗

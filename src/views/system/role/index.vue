@@ -16,7 +16,7 @@
         </el-form>
       </template>
       <template #right>
-        <el-button type="primary" @click="handleSearch">
+        <el-button type="primary" @click="getList">
           <el-icon><Search /></el-icon>
           搜索
         </el-button>
@@ -334,7 +334,7 @@ const savePermission = async () => {
 const getList = async () => {
   loading.value = true
   try {
-    handleSearch()
+    await handleSearch()
   } catch (error) {
     console.error('获取角色列表失败:', error)
   } finally {
@@ -394,10 +394,11 @@ const resetSearch = () => {
   }
   searchForm.value = {
     name: '',
-    code: ''
+    code: '',
+    SkipCount: 1,
+    MaxResultCount: 20
   }
-  currentPage.value = 1
-  handleSearch()
+  getList()
 }
 
 onMounted(() => {

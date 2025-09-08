@@ -80,11 +80,7 @@ export const addDynamicRoutes = async (asyncRoutesFromAPI) => {
 
     // 1. 转换路由结构
     const userAsyncRoutes = transformAsyncRoutes(asyncRoutesFromAPI)
-    // 2. 动态添加转换后的路由
-    // userAsyncRoutes.forEach((route) => {
-    //   router.addRoute(route)
-    // })
-    // 5. 保存菜单路由到 store 和 localStorage
+    // 2. 保存菜单路由到 store 和 localStorage
     routeStore.setMenuRoutes(userAsyncRoutes)
     routeStore.setRoutesAdded(true)
 
@@ -100,26 +96,8 @@ export const initDynamicRoutes = async () => {
   const routeStore = usePermissionStore()
   const userStore = useUserStore()
 
-  // 如果之前已经添加过路由，直接从存储中恢复
-  //   if (routeStore.isRoutesAdded && routeStore.menuRoutes.length > 0) {
-  //     console.log('从存储恢复动态路由')
-
-  //     // 重新添加路由到 router
-  //     routeStore.menuRoutes.forEach((route) => {
-  //       router.addRoute(route)
-  //     })
-  //     return routeStore.menuRoutes
-  //   }
   const dynamicRoutes = await routeStore.getRoleMenus(userStore.userInfo.id)
   console.log('获取到接口的', dynamicRoutes)
   // 否则正常添加动态路由
   return await addDynamicRoutes(dynamicRoutes)
-}
-// 重置路由（退出登录时使用）
-export const resetRouter = () => {
-  const newRouter = createRouter({
-    history: createWebHistory(),
-    routes: constantRoutes
-  })
-  router.matcher = newRouter.matcher // 重置路由匹配器
 }

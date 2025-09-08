@@ -57,7 +57,7 @@ const hasSingleChild = (item) => {
 
 const isHidden = (item) => {
   // 判断路由是否隐藏，默认不隐藏
-  return item.hidden
+  return item?.hidden
 }
 
 const isDisabled = (item) => {

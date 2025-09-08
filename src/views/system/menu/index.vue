@@ -229,6 +229,7 @@ import {
   editPermission,
   deletePermission
 } from '@/api/permission'
+import { buildMenuTree } from '@/utils/tools'
 
 const { tableHeight, calculateTableHeight } = useTableHeight()
 // 表格相关数据
@@ -308,7 +309,7 @@ const getList = async () => {
     }
     const res = await getPermissionList(params)
     if (res?.items && res?.items.length > 0) {
-      tableData.value = buildTree(res?.items)
+      tableData.value = buildMenuTree(res?.items)
     } else {
       tableData.value = []
     }
@@ -322,15 +323,15 @@ const getList = async () => {
   }
 }
 
-// 构建树形结构
-const buildTree = (data, parentId = null) => {
-  return data
-    .filter((item) => item.parentId === parentId)
-    .map((item) => ({
-      ...item,
-      children: buildTree(data, item.id)
-    }))
-}
+// // 构建树形结构
+// const buildMenuTree = (data, parentId = null) => {
+//   return data
+//     .filter((item) => item.parentId === parentId)
+//     .map((item) => ({
+//       ...item,
+//       children: buildMenuTree(data, item.id)
+//     }))
+// }
 
 // 分页处理
 const handleSizeChange = (val) => {

@@ -7,7 +7,7 @@ export const useTagsViewStore = defineStore('tagsView', {
   }),
   getters: {
     affixTags: (state) => {
-      return state.visitedViews.filter(tag => tag.meta && tag.meta.affix)
+      return state.visitedViews.filter((tag) => tag.meta && tag.meta.affix)
     }
   },
   actions: {
@@ -16,7 +16,7 @@ export const useTagsViewStore = defineStore('tagsView', {
       this.addCachedView(view)
     },
     addVisitedView(view) {
-      if (this.visitedViews.some(v => v.path === view.path)) return
+      if (this.visitedViews.some((v) => v.path === view.path)) return
 
       if (view.meta && view.meta.affix) {
         this.visitedViews.unshift(
@@ -34,12 +34,12 @@ export const useTagsViewStore = defineStore('tagsView', {
     },
     addCachedView(view) {
       if (this.cachedViews.includes(view.name)) return
-      if (view.meta && !view.meta.noCache) {
+      if (view.meta && !view.meta.keepAlive) {
         this.cachedViews.push(view.name)
       }
     },
     delView(view) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         this.delVisitedView(view)
         this.delCachedView(view)
         resolve({
@@ -61,7 +61,7 @@ export const useTagsViewStore = defineStore('tagsView', {
       index > -1 && this.cachedViews.splice(index, 1)
     },
     delOtherViews(view) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         this.delOtherVisitedViews(view)
         this.delOtherCachedViews(view)
         resolve({
@@ -71,8 +71,8 @@ export const useTagsViewStore = defineStore('tagsView', {
       })
     },
     delOtherVisitedViews(view) {
-      this.visitedViews = this.visitedViews.filter(v => {
-        return v.meta && v.meta.affix || v.path === view.path
+      this.visitedViews = this.visitedViews.filter((v) => {
+        return (v.meta && v.meta.affix) || v.path === view.path
       })
     },
     delOtherCachedViews(view) {
@@ -84,7 +84,7 @@ export const useTagsViewStore = defineStore('tagsView', {
       }
     },
     delAllViews() {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         this.delAllVisitedViews()
         this.delAllCachedViews()
         resolve({
@@ -95,7 +95,7 @@ export const useTagsViewStore = defineStore('tagsView', {
     },
     delAllVisitedViews() {
       // 保留固定的标签
-      this.visitedViews = this.visitedViews.filter(tag => tag.meta && tag.meta.affix)
+      this.visitedViews = this.visitedViews.filter((tag) => tag.meta && tag.meta.affix)
     },
     delAllCachedViews() {
       this.cachedViews = []
