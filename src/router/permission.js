@@ -1,11 +1,9 @@
 import router from '@/router'
 import { useUserStore } from '@/store/modules/user'
-import { constantRoutes, asyncRoutes } from '@/router/index.js'
 import { ElMessage } from 'element-plus'
 import { usePermissionStore } from '@/store/modules/permission.js'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-import { addDynamicRoutes, initDynamicRoutes } from './dynamic-routes'
 
 NProgress.configure({ showSpinner: false })
 
@@ -41,9 +39,18 @@ router.beforeEach(async (to, from, next) => {
       try {
         // 应用启动时初始化路由
         if (!permissionStore.isRoutesAdded) {
-          await initDynamicRoutes()
-          // 动态路由添加完成后，重定向到当前要去的页面
-          next({ ...to, replace: true })
+          const userId = userStore.userInfo.id
+          let roleRoutes = await permissionStore.getRoleMenus(userId)
+          console.log('roleRoutes', roleRoutes)
+          await permissionStore.generateRoutes(roleRoutes)
+          permissionStore.addRoutes.forEach((route) => {
+            router.addRoute(route) //添加动态访问路由表
+          })
+          const redirectPath = from.query.redirect || to.path
+          const redirect = decodeURIComponent(redirectPath)
+          const nextData = to.path === redirect ? { ...to, replace: true } : { path: redirect }
+          permissionStore.setRoutesAdded(true)
+          next(nextData)
         } else {
           // await initDynamicRoutes()
           next()

@@ -44,16 +44,13 @@ export const constantRoutes = [
     component: () => import('@/views/error-page/404.vue'),
     hidden: true
   },
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    redirect: '/404',
-    hidden: true,
-    meta: { title: '404', icon: '404' }
-  }
-]
-
-export const asyncRoutes = [
+  // {
+  //   path: '/:pathMatch(.*)*',
+  //   name: 'NotFound',
+  //   redirect: '/404',
+  //   hidden: true,
+  //   meta: { title: '404', icon: '404' }
+  // },
   {
     path: '/',
     component: Layout,
@@ -74,7 +71,10 @@ export const asyncRoutes = [
         }
       }
     ]
-  },
+  }
+]
+
+export const asyncRoutes = [
   {
     path: '/system',
     component: Layout,

@@ -25,10 +25,6 @@ app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
 
-// 应用启动时初始化路由存储
-const routeStore = usePermissionStore()
-routeStore.loadMenuRoutesFromStorage()
-
 // 全局挂载 ElMessage
 // app.config.globalProperties.$message = ElMessage
 

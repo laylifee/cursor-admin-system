@@ -34,7 +34,8 @@ export const useTagsViewStore = defineStore('tagsView', {
     },
     addCachedView(view) {
       if (this.cachedViews.includes(view.name)) return
-      if (view.meta && !view.meta.keepAlive) {
+      // 修复条件判断，keepAlive为true时才添加到缓存
+      if (view.meta && view.meta.keepAlive) {
         this.cachedViews.push(view.name)
       }
     },
@@ -99,32 +100,6 @@ export const useTagsViewStore = defineStore('tagsView', {
     },
     delAllCachedViews() {
       this.cachedViews = []
-    },
-    updateVisitedView(view) {
-      for (let v of this.visitedViews) {
-        if (v.path === view.path) {
-          v = Object.assign(v, view)
-          break
-        }
-      }
-    },
-    addAffixTags() {
-      // 这个方法应该由路由配置中的固定标签来初始化
-      // 实际项目中，可能需要从路由配置中获取所有带有affix: true的路由
-      // 这里只是一个示例
-      const affixTags = [
-        {
-          path: '/dashboard',
-          meta: { title: '首页', affix: true }
-        }
-      ]
-
-      for (const tag of affixTags) {
-        if (tag.name) {
-          this.addVisitedView(tag)
-          this.addCachedView(tag)
-        }
-      }
     }
   }
 })
