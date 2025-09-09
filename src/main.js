@@ -11,7 +11,7 @@ import App from './App.vue'
 import router from './router'
 import './styles/index.scss' // 引入全局样式
 import './router/permission' // 引入路由守卫
-import { usePermissionStore } from '@/store/modules/permission'
+
 const app = createApp(App)
 
 // 注册 Element Plus 图标

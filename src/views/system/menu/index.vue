@@ -50,19 +50,9 @@
           <el-table-column prop="menuType" label="菜单类型" min-width="100">
             <template #default="{ row }">
               <el-tag
-                :type="
-                  row.menuType === '1' && row?.children?.length && !row.parentId
-                    ? 'info'
-                    : row.menuType === '2'
-                      ? 'success'
-                      : 'primary'
-                "
+                :type="row.menuType === '3' ? 'info' : row.menuType === '2' ? 'success' : 'primary'"
                 >{{
-                  row.menuType === '1' && row?.children?.length && !row.parentId
-                    ? '目录'
-                    : row.menuType === '2'
-                      ? '按钮'
-                      : '菜单'
+                  row.menuType === '3' ? '目录' : row.menuType === '2' ? '按钮' : '菜单'
                 }}</el-tag
               >
             </template>
@@ -147,14 +137,15 @@
               size="large"
               :disabled="(!isEdit && !form.parentId) || isEdit"
             >
+              <el-radio-button :disabled="form.parentId" label="目录" value="3" />
               <el-radio-button label="菜单" value="1" />
               <el-radio-button label="权限" value="2" />
             </el-radio-group>
           </el-form-item>
         </div>
-        <template v-if="form.menuType === '1'">
-          <el-form-item label="菜单名称" prop="name">
-            <el-input v-model="form.name" placeholder="请输入菜单名称" />
+        <template v-if="form.menuType === '1' || form.menuType === '3'">
+          <el-form-item label="名称" prop="name">
+            <el-input v-model="form.name" placeholder="请输入名称" />
           </el-form-item>
           <el-form-item label="权限标识" prop="permissionKey">
             <el-input v-model="form.permissionKey" placeholder="请输入权限标识" />
@@ -162,10 +153,10 @@
           <el-form-item label="路由地址" prop="menuPath">
             <el-input v-model="form.menuPath" placeholder="请输入路由地址" />
           </el-form-item>
-          <el-form-item label="组件路径">
+          <el-form-item label="组件路径" prop="componentPath">
             <el-input v-model="form.componentPath" placeholder="请输入组件路径" />
           </el-form-item>
-          <el-form-item label="图标">
+          <el-form-item label="图标" prop="menuIcon">
             <IconSelector v-model="form.menuIcon" style="width: 100%" />
           </el-form-item>
           <el-form-item label="菜单排序" prop="sort">
@@ -272,7 +263,8 @@ const rules = {
   name: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
   menuPath: [{ required: true, message: '请输入路由地址', trigger: 'blur' }],
   sort: [{ required: true, message: '请输入排序', trigger: 'blur' }],
-  permissionKey: [{ required: true, message: '请输入权限标识', trigger: 'blur' }]
+  permissionKey: [{ required: true, message: '请输入权限标识', trigger: 'blur' }],
+  componentPath: [{ required: true, message: '请输入组件路径', trigger: 'blur' }]
 }
 
 // 菜单控制相关
@@ -366,7 +358,7 @@ const handleAdd = (row = null) => {
   isEdit.value = false
   formRef.value && formRef.value.resetFields()
   form.value = {
-    menuType: '1',
+    menuType: '3',
     id: '',
     name: '',
     menuIcon: '',

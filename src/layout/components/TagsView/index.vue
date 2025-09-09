@@ -181,7 +181,7 @@ const scrollToCurrentTag = () => {
 const initTags = () => {
   const affixTags = tagsViewStore.affixTags
   if (affixTags.length) {
-    tagsViewStore.addAffixTags()
+    tagsViewStore.affixTags
   }
 }
 

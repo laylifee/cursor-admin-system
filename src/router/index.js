@@ -18,17 +18,17 @@ import Layout from '@/layout/index.vue'
  * 
  */
 export const constantRoutes = [
-  {
-    path: '/redirect',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: '/redirect/:path(.*)',
-        component: () => import('@/views/redirect/index.vue')
-      }
-    ]
-  },
+  // {
+  //   path: '/redirect',
+  //   component: Layout,
+  //   hidden: true,
+  //   children: [
+  //     {
+  //       path: '/redirect/:path(.*)',
+  //       component: () => import('@/views/redirect/index.vue')
+  //     }
+  //   ]
+  // },
   {
     path: '/login',
     name: 'Login',
@@ -44,13 +44,6 @@ export const constantRoutes = [
     component: () => import('@/views/error-page/404.vue'),
     hidden: true
   },
-  // {
-  //   path: '/:pathMatch(.*)*',
-  //   name: 'NotFound',
-  //   redirect: '/404',
-  //   hidden: true,
-  //   meta: { title: '404', icon: '404' }
-  // },
   {
     path: '/',
     component: Layout,
@@ -173,7 +166,7 @@ export const asyncRoutes = [
 const router = createRouter({
   // history: createWebHistory(),
   history: createWebHashHistory(),
-  routes: constantRoutes.concat(asyncRoutes),
+  routes: constantRoutes,
   scrollBehavior: () => ({ top: 0 })
 })
 

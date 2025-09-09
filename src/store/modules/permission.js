@@ -20,7 +20,7 @@ export const usePermissionStore = defineStore('permission', {
       {
         key: 'permission',
         storage: localStorage,
-        paths: ['isRoutesAdded'] // 只持久化 isRoutesAdded
+        paths: ['isRoutesAdded', 'routes', 'addRoutes', 'rawAuthData'] // 持久化所有路由相关数据
       }
     ]
   },
@@ -35,10 +35,8 @@ export const usePermissionStore = defineStore('permission', {
     async resetRoutes() {
       this.routes = []
       this.addRoutes = []
+      this.rawAuthData = []
       this.isRoutesAdded = false
-      this.menuRoutes = []
-      this.currentRoute = null
-      localStorage.removeItem('menuRoutes')
     },
     // 登录后获取用户角色菜单
     async getRoleMenus(userId) {
@@ -46,7 +44,7 @@ export const usePermissionStore = defineStore('permission', {
       console.log('response', response)
       const authList =
         response?.items
-          .filter((item) => item.menuType === '1')
+          .filter((item) => item.menuType === '1' || item.menuType === '3')
           .map((item) => ({
             ...item,
             component: item.componentPath, // Map componentPath to component since there's no component value
@@ -64,10 +62,6 @@ export const usePermissionStore = defineStore('permission', {
       this.rawAuthData = authList
       const treeRoutes = buildMenuTree(authList)
       console.log('treeRoutes', treeRoutes)
-      //   const accessedRoutes = transformAuthToRoute(treeRoutes)
-      //   console.log('accessedRoutes', accessedRoutes)
-      //   this.routes = constantRoutes.concat(treeRoutes)
-      //   this.addRoutes = treeRoutes
       return treeRoutes || []
     },
     generateRoutes(routers) {
@@ -75,8 +69,9 @@ export const usePermissionStore = defineStore('permission', {
         try {
           let routerMap = []
           routerMap = generateRoutesByServer(routers)
+          console.log('routerMap', routerMap)
           // 动态路由，404一定要放到最后面
-          this.addRouters = routerMap.concat([
+          this.addRoutes = routerMap.concat([
             {
               path: '/:path(.*)*',
               redirect: '/404',
@@ -88,7 +83,6 @@ export const usePermissionStore = defineStore('permission', {
               }
             }
           ])
-          this.addRoutes = routerMap
           // 渲染菜单的所有路由
           this.routes = cloneDeep(constantRoutes).concat(routerMap)
           resolve()

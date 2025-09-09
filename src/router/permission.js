@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { usePermissionStore } from '@/store/modules/permission.js'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+import { restoreRoutes } from '@/router/dynamic-routes'
 
 NProgress.configure({ showSpinner: false })
 
@@ -38,22 +39,43 @@ router.beforeEach(async (to, from, next) => {
     } else {
       try {
         // 应用启动时初始化路由
-        if (!permissionStore.isRoutesAdded) {
-          const userId = userStore.userInfo.id
-          let roleRoutes = await permissionStore.getRoleMenus(userId)
-          console.log('roleRoutes', roleRoutes)
-          await permissionStore.generateRoutes(roleRoutes)
-          permissionStore.addRoutes.forEach((route) => {
-            router.addRoute(route) //添加动态访问路由表
-          })
-          const redirectPath = from.query.redirect || to.path
-          const redirect = decodeURIComponent(redirectPath)
-          const nextData = to.path === redirect ? { ...to, replace: true } : { path: redirect }
-          permissionStore.setRoutesAdded(true)
-          next(nextData)
+        if (!permissionStore.isRoutesAdded || permissionStore.addRoutes.length === 0) {
+          try {
+            const userId = userStore.userInfo.id
+            let roleRoutes = await permissionStore.getRoleMenus(userId)
+            console.log('roleRoutes', roleRoutes)
+            await permissionStore.generateRoutes(roleRoutes)
+
+            permissionStore.addRoutes.forEach((route) => {
+              router.addRoute(route) //添加动态访问路由表
+            })
+
+            const redirectPath = from.query.redirect || to.path
+            const redirect = decodeURIComponent(redirectPath)
+            const nextData = to.path === redirect ? { ...to, replace: true } : { path: redirect }
+            permissionStore.setRoutesAdded(true)
+            next(nextData)
+          } catch (err) {
+            console.log('路由守卫错误', err)
+            userStore.resetToken()
+            permissionStore.resetRoutes()
+            next(`/login?redirect=${to.path}`)
+          }
         } else {
-          // await initDynamicRoutes()
-          next()
+          console.log('刷新不见了')
+          // 检查路由是否真的存在（防止组件函数丢失）
+          const routeExists = router.getRoutes().some((r) => r.path === to.path)
+          if (!routeExists) {
+            console.warn('路由不存在，重新恢复:', to.path)
+            let routes = await restoreRoutes()
+            console.log('routes', routes)
+            routes.forEach((route) => {
+              router.addRoute(route) //添加动态访问路由表
+            })
+            next({ ...to, replace: true })
+          } else {
+            next()
+          }
         }
       } catch (err) {
         console.log('路由守卫错误', err)
