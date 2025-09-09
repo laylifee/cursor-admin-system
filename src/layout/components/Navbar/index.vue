@@ -8,7 +8,7 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <el-avatar :size="30" :src="userStore.avatar" />
+          <el-avatar :size="30" :src="avatar" />
           <span class="user-name">{{ userStore?.userInfo?.name }}</span>
           <el-icon><CaretBottom /></el-icon>
         </div>
@@ -34,6 +34,7 @@ import { CaretBottom, SwitchButton } from '@element-plus/icons-vue'
 import Hamburger from './Hamburger.vue'
 import Breadcrumb from './Breadcrumb.vue'
 import { computed } from 'vue'
+// import defaultAvatar from '@/assets/user/defaule_avatar.gif?url'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -48,6 +49,19 @@ const handleLogout = async () => {
     console.error('退出登录失败:', error)
   }
 }
+const avatar = computed(() => {
+  if (userStore.avatar) {
+    return userStore.avatar
+  }
+  try {
+    // 使用 Vite 的动态导入功能
+    console.log(new URL('@/assets/user/defaule_avatar.gif', import.meta.url).href)
+    return new URL('@/assets/user/defaule_avatar.gif', import.meta.url).href
+  } catch (error) {
+    console.error('加载默认头像失败:', error)
+    return ''
+  }
+})
 </script>
 
 <style lang="scss" scoped>

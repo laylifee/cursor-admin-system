@@ -42,7 +42,9 @@ export default defineConfig(({ command, mode }) => {
         '.jpg',
         '.jpeg',
         '.png',
-        '.svg'
+        '.svg',
+        '.gif',
+        '.webp'
       ]
     },
 
