@@ -9,7 +9,9 @@ export const useUserStore = defineStore('user', {
     name: '',
     avatar: '',
     roles: [],
-    userInfo: {}
+    userInfo: {},
+    rememberMe: false,
+    loginInfo: {}
   }),
   // 添加持久化存储配置
   persist: {
@@ -23,6 +25,18 @@ export const useUserStore = defineStore('user', {
   },
 
   actions: {
+    setRememberMe(rememberMe) {
+      this.rememberMe = rememberMe
+    },
+    removeRememberMe() {
+      this.rememberMe = false
+    },
+    setLoginInfo(loginInfo) {
+      this.loginInfo = loginInfo
+    },
+    removeLoginInfo() {
+      this.loginInfo = {}
+    },
     // 登录
     async login(userInfo) {
       try {
@@ -80,6 +94,7 @@ export const useUserStore = defineStore('user', {
     resetToken() {
       this.token = ''
       this.roles = []
+      this.userInfo = {}
       removeToken()
     }
   }

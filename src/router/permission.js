@@ -67,9 +67,17 @@ router.beforeEach(async (to, from, next) => {
           const routeExists = router.getRoutes().some((r) => r.path === to.path)
           if (!routeExists) {
             console.warn('路由不存在，重新恢复:', to.path)
-            let routes = await restoreRoutes()
-            console.log('routes', routes)
-            routes.forEach((route) => {
+            // let routes = await restoreRoutes()
+            // console.log('routes', routes)
+            // routes.forEach((route) => {
+            //   router.addRoute(route) //添加动态访问路由表
+            // })
+            const userId = userStore.userInfo.id
+            let roleRoutes = await permissionStore.getRoleMenus(userId)
+            console.log('roleRoutes', roleRoutes)
+            await permissionStore.generateRoutes(roleRoutes)
+
+            permissionStore.addRoutes.forEach((route) => {
               router.addRoute(route) //添加动态访问路由表
             })
             next({ ...to, replace: true })

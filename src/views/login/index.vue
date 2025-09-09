@@ -55,7 +55,9 @@
       </el-form-item>
 
       <div class="remember-me">
-        <el-checkbox v-model="rememberMe">记住我</el-checkbox>
+        <el-checkbox v-model="rememberMe" :true-value="true" :false-value="false"
+          >记住我</el-checkbox
+        >
       </div>
 
       <el-button :loading="loading" type="primary" class="w-full" @click.prevent="handleLogin">
@@ -87,11 +89,11 @@ const usernameRef = ref(null)
 const passwordRef = ref(null)
 const loading = ref(false)
 const passwordVisible = ref(false)
-const rememberMe = ref(true)
+const rememberMe = ref(false)
 
 const loginForm = ref({
-  userNameOrEmail: 'admin',
-  password: 'Admin123!'
+  userNameOrEmail: '',
+  password: ''
 })
 
 const loginRules = {
@@ -133,6 +135,15 @@ const handleLogin = () => {
           rememberMe: rememberMe.value
         }
         await userStore.login(params)
+        if (rememberMe.value) {
+          userStore.setLoginInfo({
+            ...loginForm.value
+          })
+          userStore.setRememberMe(rememberMe.value)
+        } else {
+          userStore.removeLoginInfo()
+        }
+
         // await userStore.getInfo()
         // await permissionStore.getRoleMenus(userStore.userInfo.id)
         const redirect = route.query.redirect || '/'
@@ -150,6 +161,11 @@ const handleLogin = () => {
 
 onMounted(() => {
   usernameRef.value?.focus()
+  if (userStore.rememberMe) {
+    loginForm.value.userNameOrEmail = userStore.loginInfo.userNameOrEmail
+    loginForm.value.password = userStore.loginInfo.password
+    rememberMe.value = userStore.rememberMe
+  }
 })
 </script>
 
