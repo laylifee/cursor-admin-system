@@ -42,27 +42,59 @@ export const usePermissionStore = defineStore('permission', {
     async getRoleMenus(userId) {
       const response = await getUserRoleMenus(userId)
       console.log('response', response)
-      const authList =
-        response?.items
-          .filter((item) => item.menuType === '1' || item.menuType === '3')
-          .map((item) => ({
-            ...item,
-            component: item.componentPath, // Map componentPath to component since there's no component value
-            path: item.menuPath, // Map menuPath to path
-            name: item.permissionKey, // Use displayName or name as title
-            hidden: item.hidden,
-            meta: {
-              title: item.name, // Use displayName or name as title
-              icon: item.menuIcon, // Map menuIcon to icon
-              keepAlive: item.keepAlive,
-              affix: item.affix,
-              roles: [] // Use permissionKey as roles
-            }
-          })) || []
-      this.rawAuthData = authList
-      const treeRoutes = buildMenuTree(authList)
-      console.log('treeRoutes', treeRoutes)
-      return treeRoutes || []
+
+      // 分离菜单数据和按钮权限数据
+      const allItems = response?.items || []
+      const menuItems = allItems
+        .filter((item) => item.menuType === '1' || item.menuType === '3') // 只保留目录和菜单
+        .map((item) => ({
+          ...item,
+          component: item.componentPath, // Map componentPath to component since there's no component value
+          path: item.menuPath, // Map menuPath to path
+          name: item.permissionKey, // Use displayName or name as title
+          hidden: item.hidden,
+          meta: {
+            title: item.name, // Use displayName or name as title
+            icon: item.menuIcon, // Map menuIcon to icon
+            keepAlive: item.keepAlive,
+            affix: item.affix,
+            roles: [], // Use permissionKey as roles
+            buttons: [] // 为每个菜单预留按钮权限数组
+          }
+        }))
+
+      // 收集所有按钮权限
+      const buttonPermissions = allItems
+        .filter((item) => item.menuType === '2') // 只保留按钮权限
+        .map((item) => ({
+          id: item.id,
+          parentId: item.parentId,
+          permissionKey: item.permissionKey,
+          name: item.name
+        }))
+
+      // 将按钮权限添加到对应的父菜单
+      const addButtonsToParentMenu = (menus, buttons) => {
+        menus.forEach((menu) => {
+          // 查找当前菜单的按钮权限
+          const menuButtons = buttons.filter((btn) => btn.parentId === menu.id)
+          if (menuButtons.length > 0) {
+            menu.meta.buttons = menuButtons
+          }
+
+          // 递归处理子菜单
+          if (menu.children && menu.children.length > 0) {
+            addButtonsToParentMenu(menu.children, buttons)
+          }
+        })
+      }
+
+      const menuTree = buildMenuTree(menuItems)
+      addButtonsToParentMenu(menuTree, buttonPermissions)
+
+      this.rawAuthData = menuTree
+      console.log('menuTree with buttons', menuTree)
+      return menuTree || []
     },
     generateRoutes(routers) {
       return new Promise((resolve, reject) => {

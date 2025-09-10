@@ -48,6 +48,13 @@
     &.el-button--info:hover {
       background-color: rgba(154, 157, 160, 0.3);
     }
+    &.el-button--warning {
+      background-color: rgba(250, 191, 68, 0.15);
+      color: #fabf44;
+    }
+    &.el-button--warning:hover {
+      background-color: rgba(250, 191, 68, 0.3);
+    }
   }
 }
 

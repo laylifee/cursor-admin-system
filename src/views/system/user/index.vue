@@ -13,8 +13,8 @@
         </el-form>
       </template>
       <template #right>
-        <el-button type="primary" @click="handleSearch"> 搜索 </el-button>
-        <el-button @click="resetSearch"> 重置 </el-button>
+        <el-button :disabled="loading" type="primary" @click="getList"> 搜索 </el-button>
+        <el-button :disabled="loading" @click="resetSearch"> 重置 </el-button>
       </template>
     </SearchWrapper>
 
@@ -25,7 +25,9 @@
           <h3>用户列表</h3>
         </div>
         <div class="header-actions">
-          <el-button class="ripple-button" @click="handleAdd"> 新增用户 </el-button>
+          <el-button v-has-permission="'user_add'" class="ripple-button" @click="handleAdd">
+            新增用户
+          </el-button>
           <el-button @click="refreshTable">
             <el-icon><Refresh /></el-icon>
           </el-button>
@@ -52,12 +54,28 @@
           </el-table-column> -->
           <el-table-column label="操作" fixed="right">
             <template #default="{ row }">
-              <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-              <el-button v-if="+row.code !== 1" type="danger" link @click="handleDelete(row)"
-                >删除</el-button
-              >
+              <el-button
+                v-has-permission="'user_edit'"
+                class="plain-icon-button"
+                icon="Edit"
+                type="primary"
+                @click="handleEdit(row)"
+              ></el-button>
+              <el-button
+                v-has-permission="'user_delete'"
+                class="plain-icon-button"
+                icon="Delete"
+                v-if="+row.code !== 1"
+                type="danger"
+                @click="handleDelete(row)"
+              ></el-button>
               <!-- 修改密码 -->
-              <el-button type="warning" link @click="handleChangePassword(row)">修改密码</el-button>
+              <el-button
+                class="plain-icon-button"
+                type="warning"
+                icon="Tools"
+                @click="handleChangePassword(row)"
+              ></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -182,6 +200,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { db } from '@/utils/dbConfig.js'
 import { useTableHeight } from '@/utils/useTableHeight'
+
 import {
   getUserList,
   getUserDetail,
@@ -502,7 +521,7 @@ const resetSearch = () => {
     name: '',
     code: ''
   }
-  handleSearch()
+  getList()
 }
 
 onMounted(() => {

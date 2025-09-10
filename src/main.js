@@ -11,13 +11,14 @@ import App from './App.vue'
 import router from './router'
 import './styles/index.scss' // 引入全局样式
 import './router/permission' // 引入路由守卫
-
+import { setupPermissionDirective } from './directive/permission'
 const app = createApp(App)
 
 // 注册 Element Plus 图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
+setupPermissionDirective(app)
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 app.component('SearchWrapper', SearchWrapper)

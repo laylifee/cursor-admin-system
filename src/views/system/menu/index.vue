@@ -13,8 +13,8 @@
         </el-form>
       </template>
       <template #right>
-        <el-button type="primary" @click="handleSearch"> 搜索 </el-button>
-        <el-button @click="resetSearch"> 重置 </el-button>
+        <el-button :disabled="loading" type="primary" @click="getList"> 搜索 </el-button>
+        <el-button :disabled="loading" @click="resetSearch"> 重置 </el-button>
       </template>
     </SearchWrapper>
 
@@ -84,19 +84,19 @@
                 v-if="row.menuType !== '2'"
                 class="plain-icon-button"
                 type="primary"
-                :icon="Plus"
+                icon="Plus"
                 @click="handleAddChildren(row)"
               />
               <el-button
                 class="plain-icon-button"
                 type="primary"
-                :icon="Edit"
+                icon="Edit"
                 @click="handleEdit(row)"
               />
               <el-button
                 class="plain-icon-button"
                 type="danger"
-                :icon="Delete"
+                icon="Delete"
                 @click="handleDelete(row)"
               />
             </template>
@@ -199,8 +199,8 @@
         </template>
       </el-form>
       <template #footer>
-        <el-button @click="handleCancel">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button :disabled="isSubmit" @click="handleCancel">取消</el-button>
+        <el-button :disabled="isSubmit" type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -209,7 +209,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElSwitch, ElInputNumber } from 'element-plus'
-import { Refresh, Edit, Delete, Plus } from '@element-plus/icons-vue'
 import { useTableHeight } from '@/utils/useTableHeight'
 import SearchWrapper from '@/components/SearchWrapper.vue'
 import IconSelector from '@/components/IconSelector.vue'
@@ -228,7 +227,8 @@ const loading = ref(false)
 const tableData = ref([])
 const allMenus = ref([])
 const total = ref(0)
-
+// 是否提交的
+const isSubmit = ref(false)
 // 搜索表单
 const searchForm = ref({
   name: '',
@@ -415,6 +415,7 @@ const handleSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        isSubmit.value = true
         const params = {
           ...form.value
         }
@@ -434,6 +435,8 @@ const handleSubmit = () => {
       } catch (error) {
         console.error('操作失败:', error)
         ElMessage.error('操作失败')
+      } finally {
+        isSubmit.value = false
       }
     }
   })

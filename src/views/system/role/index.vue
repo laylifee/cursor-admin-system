@@ -16,11 +16,11 @@
         </el-form>
       </template>
       <template #right>
-        <el-button type="primary" @click="getList">
+        <el-button :disabled="loading" type="primary" @click="getList">
           <el-icon><Search /></el-icon>
           搜索
         </el-button>
-        <el-button @click="resetSearch">
+        <el-button :disabled="loading" @click="resetSearch">
           <el-icon><Refresh /></el-icon>
           重置
         </el-button>
@@ -50,9 +50,24 @@
           <el-table-column prop="description" label="描述" />
           <el-table-column label="操作" fixed="right">
             <template #default="{ row }">
-              <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-              <el-button type="success" link @click="handlePermission(row)">权限</el-button>
-              <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+              <el-button
+                class="plain-icon-button"
+                type="primary"
+                icon="Edit"
+                @click="handleEdit(row)"
+              />
+              <el-button
+                class="plain-icon-button"
+                type="success"
+                icon="Lock"
+                @click="handlePermission(row)"
+              />
+              <el-button
+                class="plain-icon-button"
+                type="danger"
+                icon="Delete"
+                @click="handleDelete(row)"
+              />
             </template>
           </el-table-column>
         </el-table>
@@ -91,8 +106,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="handlerRoleCancel">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button :disabled="isSubmit" @click="handlerRoleCancel">取消</el-button>
+        <el-button :disabled="isSubmit" type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
 
@@ -109,7 +124,6 @@
       <div v-if="currentRole">
         <div class="permission-content">
           <el-tree
-            :default-checked-keys="defaultSelectedMenuIds"
             :data="menuTreeData"
             show-checkbox
             node-key="id"
@@ -124,8 +138,8 @@
       </div>
 
       <template #footer>
-        <el-button @click="handleRolePermissionCancel">取消</el-button>
-        <el-button type="primary" @click="savePermission">保存</el-button>
+        <el-button :disabled="isSubmit" @click="handleRolePermissionCancel">取消</el-button>
+        <el-button :disabled="isSubmit" type="primary" @click="savePermission">保存</el-button>
       </template>
     </el-dialog>
   </div>
@@ -145,7 +159,8 @@ const pageSize = ref(10)
 const total = ref(20)
 
 const { tableHeight, calculateTableHeight } = useTableHeight()
-
+// 是否提交的
+const isSubmit = ref(false)
 // 是否是编辑状态
 const isEdit = ref(false)
 // 新增弹窗
@@ -182,6 +197,7 @@ const searchForm = ref({
 const handleSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
+      isSubmit.value = true
       // 编辑角色
       if (isEdit.value) {
         const data = {
@@ -200,6 +216,7 @@ const handleSubmit = () => {
         permissionNames: []
       }
       await addRole(data)
+      isSubmit.value = false
       handlerRoleCancel()
       getList()
       ElMessage.success('新增角色成功')
@@ -242,8 +259,6 @@ const menuTreeData = ref([])
 const buttonData = ref([])
 // 选中的菜单权限
 const selectedMenuIds = ref([])
-// 默认选中的菜单权限
-const defaultSelectedMenuIds = ref([])
 // 选中的按钮权限
 const selectedButtonIds = ref([])
 
@@ -277,9 +292,24 @@ const loadPermissions = async () => {
 const loadRolePermissions = async () => {
   try {
     const res = await getRolePermissions(currentRole.value.id)
-    defaultSelectedMenuIds.value = res?.permissions.map((item) => item.id)
-    selectedMenuIds.value = defaultSelectedMenuIds.value
-    console.log('角色已有的权限', res)
+    // 确保只设置实际需要的权限ID
+    if (res?.permissions && res.permissions.length > 0) {
+      // 过滤掉不需要的权限（如果有必要）
+      const filteredPermissions = res.permissions.filter((permission) => {
+        // 这里可以根据实际业务需求添加过滤条件
+        return true // 默认不过滤所有返回的权限
+      })
+
+      selectedMenuIds.value = filteredPermissions.map((item) => item.id)
+      selectedMenuIds.value.map((item) => {
+        menuTree.value.setChecked(item, true)
+      })
+
+      console.log('默认选中的权限ID:', selectedMenuIds.value)
+      console.log('角色已有的权限', res)
+    } else {
+      selectedMenuIds.value = []
+    }
   } catch (error) {
     console.error('加载角色已有的权限失败:', error)
     ElMessage.error('加载角色已有的权限失败')
@@ -297,19 +327,28 @@ const buildTree = (data, parentId = null) => {
 
 // 处理节点选中状态变化
 const handleCheckChange = (data, checked, indeterminate) => {
-  // console.log('节点选中状态变化:', data, checked, indeterminate)
-  console.log('选中的菜单权限:', menuTree.value.getCheckedNodes())
-  selectedMenuIds.value = menuTree.value.getCheckedNodes().map((item) => item.id)
+  // 获取所有全选中的节点（包括子节点）
+  const checkedKeys = menuTree.value.getCheckedKeys()
+  // 获取所有半选中的节点（父节点）
+  const halfCheckedKeys = menuTree.value.getHalfCheckedKeys()
+  // console.log('选中的菜单权限ID列表:', menuTree.value.getCheckedKeys())
+  // console.log('半选中的菜单权限ID列表:', menuTree.value.getHalfCheckedKeys())
+  // 合并全选中和半选中的节点ID
+  const allSelectedIds = [...checkedKeys, ...halfCheckedKeys]
+
+  // 去重，确保每个ID只出现一次
+  selectedMenuIds.value = [...new Set(allSelectedIds)]
+
+  console.log('选中的菜单权限总数:', selectedMenuIds.value.length)
+  console.log('选中的菜单权限ID列表:', selectedMenuIds.value)
 }
 const handleRolePermissionClose = (done) => {
   selectedMenuIds.value = []
-  defaultSelectedMenuIds.value = []
   permissionVisible.value = false
   done()
 }
 const handleRolePermissionCancel = () => {
   selectedMenuIds.value = []
-  defaultSelectedMenuIds.value = []
   permissionVisible.value = false
 }
 // 保存权限配置
@@ -319,6 +358,7 @@ const savePermission = async () => {
       ElMessage.error('请选择菜单权限')
       return
     }
+    isSubmit.value = true
     // 分配菜单权限
     await assignRolePermissions({
       roleId: currentRole.value.id,
@@ -329,6 +369,8 @@ const savePermission = async () => {
   } catch (error) {
     console.error('保存权限配置失败:', error)
     ElMessage.error('保存权限配置失败')
+  } finally {
+    isSubmit.value = false
   }
 }
 const getList = async () => {
@@ -383,7 +425,6 @@ const handleCurrentChange = (val) => {
 
 // 刷新表格
 const refreshTable = () => {
-  loading.value = true
   getList()
 }
 
