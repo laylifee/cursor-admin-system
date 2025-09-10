@@ -4,11 +4,8 @@
     <SearchWrapper>
       <template #left>
         <el-form :model="searchForm" ref="searchFormRef" :inline="true" class="search-form">
-          <el-form-item label="菜单名称" prop="name">
-            <el-input v-model="searchForm.name" placeholder="请输入菜单名称" clearable />
-          </el-form-item>
-          <el-form-item label="路由地址" prop="path">
-            <el-input v-model="searchForm.path" placeholder="请输入路由地址" clearable />
+          <el-form-item label="菜单名称" prop="Name">
+            <el-input v-model="searchForm.Name" placeholder="请输入菜单名称" clearable />
           </el-form-item>
         </el-form>
       </template>
@@ -231,8 +228,7 @@ const total = ref(0)
 const isSubmit = ref(false)
 // 搜索表单
 const searchForm = ref({
-  name: '',
-  path: '',
+  Name: '',
   SkipCount: 1,
   MaxResultCount: 999
 })
@@ -297,7 +293,8 @@ const getList = async () => {
   try {
     const params = {
       SkipCount: (searchForm.value.SkipCount - 1) * searchForm.value.MaxResultCount,
-      MaxResultCount: searchForm.value.MaxResultCount
+      MaxResultCount: searchForm.value.MaxResultCount,
+      Name: searchForm.value.Name
     }
     const res = await getPermissionList(params)
     if (res?.items && res?.items.length > 0) {
@@ -314,16 +311,6 @@ const getList = async () => {
     loading.value = false
   }
 }
-
-// // 构建树形结构
-// const buildMenuTree = (data, parentId = null) => {
-//   return data
-//     .filter((item) => item.parentId === parentId)
-//     .map((item) => ({
-//       ...item,
-//       children: buildMenuTree(data, item.id)
-//     }))
-// }
 
 // 分页处理
 const handleSizeChange = (val) => {
@@ -345,6 +332,7 @@ const handleSearch = () => {
 const resetSearch = () => {
   searchFormRef.value.resetFields()
   searchForm.value.SkipCount = 1
+  searchForm.value.Name = ''
   getList()
 }
 

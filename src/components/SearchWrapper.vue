@@ -13,7 +13,7 @@
 .search-container {
   background-color: #fff;
   border-radius: 4px;
-  padding: 16px 16px 0;
+  padding: 16px 16px 0 0;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   margin-bottom: 0;
   box-sizing: border-box;

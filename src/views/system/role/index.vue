@@ -4,14 +4,8 @@
     <SearchWrapper>
       <template #left>
         <el-form :model="searchForm" ref="searchFormRef" :inline="true" class="search-form">
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
-          </el-form-item>
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
-          </el-form-item>
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="searchForm.name" placeholder="请输入角色名称" clearable />
+          <el-form-item label="角色名称" prop="Name">
+            <el-input v-model="searchForm.Name" placeholder="请输入角色名称" clearable />
           </el-form-item>
         </el-form>
       </template>
@@ -34,10 +28,7 @@
           <h3>角色列表</h3>
         </div>
         <div class="header-actions">
-          <el-button class="ripple-button" @click="handleAdd">
-            <el-icon><Plus /></el-icon>
-            新增角色
-          </el-button>
+          <el-button class="ripple-button" @click="handleAdd"> 新增角色 </el-button>
           <el-button @click="refreshTable">
             <el-icon><Refresh /></el-icon>
           </el-button>
@@ -154,8 +145,7 @@ import { getPermissionList, getRolePermissions, assignRolePermissions } from '@/
 import { useTableHeight } from '@/utils/useTableHeight'
 const loading = ref(false)
 const tableData = ref()
-const currentPage = ref(1)
-const pageSize = ref(10)
+
 const total = ref(20)
 
 const { tableHeight, calculateTableHeight } = useTableHeight()
@@ -191,7 +181,8 @@ const handleAdd = () => {
 // 条件查询表单
 const searchForm = ref({
   SkipCount: 1,
-  MaxResultCount: 20
+  MaxResultCount: 20,
+  Name: ''
 })
 // 确定新增
 const handleSubmit = () => {
@@ -434,8 +425,7 @@ const resetSearch = () => {
     searchFormRef.value.resetFields()
   }
   searchForm.value = {
-    name: '',
-    code: '',
+    Name: '',
     SkipCount: 1,
     MaxResultCount: 20
   }

@@ -4,6 +4,7 @@
 .el-button {
   position: relative;
   overflow: hidden;
+  border-radius: 6px;
   &--primary {
     --el-button-bg-color: #{$primary-color};
     --el-button-border-color: #{$primary-color};
@@ -106,6 +107,14 @@
 
 // 表单样式
 .el-form {
+  &--inline {
+    .el-form-item {
+      margin-right: 0;
+    }
+  }
+  &-item {
+    margin-left: 32px;
+  }
   &-item__label {
     color: $text-regular;
   }

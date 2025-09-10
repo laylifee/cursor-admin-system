@@ -4,11 +4,11 @@
     <SearchWrapper>
       <template #left>
         <el-form :model="paramsForm" ref="searchFormRef" :inline="true" class="search-form">
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="paramsForm.name" placeholder="请输入角色名称" clearable />
+          <el-form-item label="用户名称" prop="UserName">
+            <el-input v-model="paramsForm.UserName" placeholder="请输入用户名称" clearable />
           </el-form-item>
-          <el-form-item label="角色名称" prop="name">
-            <el-input v-model="paramsForm.name" placeholder="请输入角色名称" clearable />
+          <el-form-item label="手机号码" prop="PhoneNumber">
+            <el-input v-model="paramsForm.PhoneNumber" placeholder="请输入手机号码" clearable />
           </el-form-item>
         </el-form>
       </template>
@@ -216,7 +216,9 @@ const tableData = ref([])
 const total = ref(0)
 const paramsForm = ref({
   SkipCount: 1,
-  MaxResultCount: 20
+  MaxResultCount: 20,
+  UserName: '',
+  PhoneNumber: ''
 })
 const roleList = ref([])
 const { tableHeight, calculateTableHeight } = useTableHeight()
@@ -518,8 +520,8 @@ const resetSearch = () => {
   paramsForm.value = {
     SkipCount: 1,
     MaxResultCount: 20,
-    name: '',
-    code: ''
+    UserName: '',
+    PhoneNumber: ''
   }
   getList()
 }
