@@ -59,13 +59,14 @@ service.interceptors.response.use(
     }
   },
   (error) => {
-    console.log('err' + error)
+    console.log(error)
+    let data = error.response.data?.data
     ElMessage({
-      message: error.message,
+      message: data.message,
       type: 'error',
       duration: 5 * 1000
     })
-    return Promise.reject(error)
+    return Promise.reject()
   }
 )
 

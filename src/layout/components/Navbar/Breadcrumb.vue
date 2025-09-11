@@ -5,7 +5,7 @@
         <span v-if="index === breadcrumbs.length - 1" class="no-redirect">{{
           item.meta?.title
         }}</span>
-        <a v-else @click.prevent="handleLink(item)">{{ item.meta?.title }}</a>
+        <a v-else>{{ item.meta?.title }}</a>
       </el-breadcrumb-item>
     </transition-group>
   </el-breadcrumb>

@@ -134,7 +134,7 @@
               size="large"
               :disabled="(!isEdit && !form.parentId) || isEdit"
             >
-              <el-radio-button :disabled="form.parentId" label="目录" value="3" />
+              <el-radio-button :disabled="!!form.parentId" label="目录" value="3" />
               <el-radio-button label="菜单" value="1" />
               <el-radio-button label="权限" value="2" />
             </el-radio-group>
@@ -491,7 +491,7 @@ onMounted(async () => {
       }
     }
     .el-form-item {
-      width: 50%;
+      width: 46%;
       margin-right: 0;
     }
   }

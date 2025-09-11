@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie'
 import { usePermissionStore } from '@/store/modules/permission'
+import { useUserStore } from '@/store/modules/user'
 const TokenKey = 'Admin-Token'
 
 export function getToken() {
@@ -17,7 +18,11 @@ export function removeToken() {
 // 检查是否拥有指定按钮权限
 export const hasButtonPermission = (permissionKey) => {
   const permissionStore = usePermissionStore()
+  const userStore = useUserStore()
   const routes = permissionStore.routes || []
+  if (userStore.userInfo.userName === 'admin') {
+    return true
+  }
 
   // 递归查找路由树中的按钮权限
   const findPermission = (menus) => {

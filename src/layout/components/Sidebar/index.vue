@@ -20,7 +20,7 @@
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/store/modules/app'
-import { constantRoutes } from '@/router'
+import { constantRoutes, asyncRoutes } from '@/router'
 import SidebarItem from './SidebarItem.vue'
 import { useUserStore } from '@/store/modules/user'
 import { usePermissionStore } from '@/store/modules/permission.js'

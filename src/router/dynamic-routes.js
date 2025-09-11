@@ -25,7 +25,7 @@ export const generateRoutesByServer = (routes) => {
     } else if (route.menuType === '1') {
       if (route.component) {
         const comModule =
-          modules[`../views/${route.component}.vue`] || modules[`../views/${route.component}.tsx`]
+          modules[`../views${route.component}.vue`] || modules[`../views${route.component}.tsx`]
 
         if (comModule) {
           data.component = comModule
@@ -56,27 +56,10 @@ export const restoreRoutes = async () => {
   if (permissionStore.isRoutesAdded && permissionStore.addRoutes.length > 0) {
     console.log('从存储恢复动态路由')
     const routes = buildMenuTree(permissionStore.rawAuthData)
-
-    // 清空现有动态路由（避免重复）
-    // removeDynamicRoutes()
-
     await permissionStore.generateRoutes(routes)
 
     return permissionStore.addRoutes
   }
 
   return []
-}
-
-// 移除所有动态路由
-const removeDynamicRoutes = () => {
-  const routesToRemove = router
-    .getRoutes()
-    .filter((route) => route.name && !['Login', '404', 'Home', 'NotFound'].includes(route.name))
-  console.log('routesToRemove', routesToRemove)
-  routesToRemove.forEach((route) => {
-    if (route.name) {
-      router.removeRoute(route.name)
-    }
-  })
 }

@@ -7,7 +7,7 @@
       @click="dialogVisible = true"
     >
       <template #prefix>
-        <el-icon>
+        <el-icon v-if="selectedIcon">
           <component :is="selectedIcon" />
         </el-icon>
       </template>
@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 const props = defineProps({
@@ -58,6 +58,16 @@ const tempSelectedIcon = ref('')
 // 获取所有图标名称
 const icons = Object.keys(ElementPlusIconsVue)
 
+// 添加监听器同步props变化
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue !== selectedIcon.value) {
+      selectedIcon.value = newValue || ''
+    }
+  }
+)
+
 const selectIcon = (icon) => {
   console.log('选择图标', icon)
   if (icon === selectedIcon.value) return
@@ -65,7 +75,7 @@ const selectIcon = (icon) => {
 }
 
 const confirmSelection = () => {
-  selectedIcon.value = tempSelectedIcon.value
+  selectedIcon.value = tempSelectedIcon.value || ''
   emit('update:modelValue', selectedIcon.value)
   dialogVisible.value = false
   tempSelectedIcon.value = ''

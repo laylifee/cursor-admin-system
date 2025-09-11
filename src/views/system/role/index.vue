@@ -254,9 +254,10 @@ const selectedMenuIds = ref([])
 const selectedButtonIds = ref([])
 
 // 权限配置
-const handlePermission = (row) => {
+const handlePermission = async (row) => {
   currentRole.value = row
   permissionVisible.value = true
+  await nextTick()
   loadPermissions()
   loadRolePermissions()
 }
