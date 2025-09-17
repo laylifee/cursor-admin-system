@@ -93,7 +93,7 @@
           <el-input v-model="form.name" />
         </el-form-item>
         <el-form-item label="描述">
-          <el-input v-model="form.description" type="textarea" rows="6" />
+          <el-input v-model="form.description" type="textarea" :rows="6" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -174,6 +174,7 @@ const menuTree = ref(null)
 // 当前激活的标签页
 const activeTab = ref('menu')
 const handleAdd = () => {
+  isSubmit.value = false
   formRef.value && formRef.value.resetFields()
   isEdit.value = false
   dialogVisible.value = true
@@ -218,6 +219,7 @@ const handleSubmit = () => {
 const handleEdit = (row) => {
   form.value = { ...row }
   isEdit.value = true
+  isSubmit.value = false
   dialogVisible.value = true
 }
 // 提前关闭
@@ -255,6 +257,7 @@ const selectedButtonIds = ref([])
 
 // 权限配置
 const handlePermission = async (row) => {
+  isSubmit.value = false
   currentRole.value = row
   permissionVisible.value = true
   await nextTick()

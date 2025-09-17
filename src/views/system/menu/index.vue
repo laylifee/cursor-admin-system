@@ -277,14 +277,7 @@ const currentMenu = ref(null)
 
 // 按钮控制相关
 const buttonControlVisible = ref(false)
-const buttonList = ref([
-  { id: 1, name: '新增', code: 'add' },
-  { id: 2, name: '编辑', code: 'edit' },
-  { id: 3, name: '删除', code: 'delete' },
-  { id: 4, name: '查看', code: 'view' },
-  { id: 5, name: '导出', code: 'export' },
-  { id: 6, name: '导入', code: 'import' }
-])
+
 const selectedButtonIds = ref([])
 
 // 获取菜单列表
@@ -362,6 +355,7 @@ const handleAdd = (row = null) => {
     internal: false, // 是否内嵌
     affix: false // 固定标签
   }
+  isSubmit.value = false
   dialogVisible.value = true
 }
 
@@ -395,6 +389,7 @@ const handleEdit = (row) => {
   form.value = {
     ...row
   }
+  isSubmit.value = false
   dialogVisible.value = true
 }
 
@@ -464,14 +459,6 @@ const handleMenuControlClose = () => {
 
 const handleMenuControlCancel = () => {
   menuControlVisible.value = false
-}
-
-const handleButtonControlClose = () => {
-  buttonControlVisible.value = false
-}
-
-const handleButtonControlCancel = () => {
-  buttonControlVisible.value = false
 }
 
 // 初始化

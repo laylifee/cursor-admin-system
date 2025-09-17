@@ -60,13 +60,32 @@ service.interceptors.response.use(
   },
   (error) => {
     console.log(error)
-    let data = error.response.data?.data
+    // 修复1：添加对error.response不存在情况的处理
+    if (!error.response) {
+      // 网络错误、超时或请求被取消
+      let errorMessage = '网络连接异常，请检查网络后重试'
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = '请求超时，请稍后重试'
+      }
+
+      ElMessage({
+        message: errorMessage,
+        type: 'error',
+        duration: 5 * 1000
+      })
+
+      // 修复2：传递完整的错误对象
+      return Promise.reject(error)
+    }
+    // 修复3：安全地获取错误信息
+    let errorData = error.response.data || {}
+    let errorMessage = errorData.data.message || ''
     ElMessage({
-      message: data.message,
+      message: errorMessage,
       type: 'error',
       duration: 5 * 1000
     })
-    return Promise.reject()
+    return Promise.reject(error)
   }
 )
 

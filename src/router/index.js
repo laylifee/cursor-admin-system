@@ -92,6 +92,18 @@ export const asyncRoutes = [
         name: 'Route',
         component: () => import('@/views/system/menu/index.vue'),
         meta: { title: '菜单管理', icon: 'Guide', roles: ['admin'] }
+      },
+      {
+        path: '/system/deviceConfig',
+        name: 'DeviceConfig',
+        component: () => import('@/views/system/deviceConfig/index.vue'),
+        meta: { title: '设备配置', icon: 'Guide', roles: ['admin'] }
+      },
+      {
+        path: '/system/IOConfig',
+        name: 'IOConfig',
+        component: () => import('@/views/system/IOConfig/index.vue'),
+        meta: { title: 'IO配置', icon: 'Guide', roles: ['admin'] }
       }
     ]
   },

@@ -123,7 +123,10 @@
     color: $danger-color;
   }
 }
-
+// 下拉选择框样式
+.el-select {
+  min-width: 196px;
+}
 // 对话框样式
 .el-dialog {
   --el-dialog-padding-primary: 20px;

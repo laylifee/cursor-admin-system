@@ -156,8 +156,8 @@
         </el-row>
       </el-form>
       <template #footer>
-        <el-button @click="handleCancel" ref="cancelBtn">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button :loading="isSubmit" @click="handleCancel" ref="cancelBtn">取消</el-button>
+        <el-button :loading="isSubmit" type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
 
@@ -224,6 +224,7 @@ const roleList = ref([])
 const { tableHeight, calculateTableHeight } = useTableHeight()
 const formRef2 = ref(null)
 const passwordDialogVisible = ref(false)
+const isSubmit = ref(false)
 const passwordForm = ref({
   id: '',
   oldPassword: '',
@@ -328,6 +329,7 @@ const formRef = ref(null)
 const searchFormRef = ref(null)
 const handleAdd = () => {
   formRef.value && formRef.value.resetFields()
+  isSubmit.value = false
   isEdit.value = false
   dialogVisible.value = true
 }
@@ -336,6 +338,7 @@ const handleAdd = () => {
 const handleSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
+      isSubmit.value = true
       // 编辑角色
       if (isEdit.value) {
         const params = {
@@ -356,6 +359,7 @@ const handleSubmit = () => {
       await addUser(data)
       handleCancel()
       getList()
+      isSubmit.value = false
       ElMessage.success('新增角色成功')
     }
   })
@@ -376,6 +380,7 @@ const handleChangePasswordSubmit = () => {
 // 编辑
 const handleEdit = (row) => {
   form.value = { ...row }
+  isSubmit.value = false
   isEdit.value = true
   dialogVisible.value = true
 }
