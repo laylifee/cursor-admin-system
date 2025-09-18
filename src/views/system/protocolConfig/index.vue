@@ -4,20 +4,11 @@
     <SearchWrapper>
       <template #left>
         <el-form :model="searchForm" ref="searchFormRef" :inline="true" class="search-form">
-          <el-form-item label="设备ID" prop="DeviceId">
-            <el-input v-model="searchForm.DeviceId" placeholder="请输入设备ID" clearable />
+          <el-form-item label="协议名称" prop="ProtocolName">
+            <el-input v-model="searchForm.ProtocolName" placeholder="请输入协议名称" clearable />
           </el-form-item>
-          <el-form-item label="设备名称" prop="DeviceName">
-            <el-input v-model="searchForm.DeviceName" placeholder="请输入设备名称" clearable />
-          </el-form-item>
-          <el-form-item label="设备类型" prop="DeviceType">
-            <el-select v-model="searchForm.DeviceType" placeholder="请选择设备类型" clearable>
-              <el-option label="全部" value="''" />
-              <el-option label="火车" :value="1" />
-              <el-option label="铁包" :value="2" />
-              <el-option label="废钢斗" :value="3" />
-              <el-option label="天车" :value="4" />
-            </el-select>
+          <el-form-item label="协议ID" prop="ProtocolId">
+            <el-input v-model="searchForm.ProtocolId" placeholder="请输入协议ID" clearable />
           </el-form-item>
         </el-form>
       </template>
@@ -37,7 +28,7 @@
     <div class="table-container">
       <div class="table-header">
         <div class="header-title">
-          <h3>设备配置列表</h3>
+          <h3>协议配置列表</h3>
         </div>
         <div class="header-actions">
           <el-button class="ripple-button" @click="handleAdd"> 新增 </el-button>
@@ -49,31 +40,17 @@
 
       <div class="table-content">
         <el-table :data="tableData" style="width: 100%" v-loading="loading" :height="tableHeight">
-          <el-table-column prop="deviceId" min-width="180" label="设备ID" />
-          <el-table-column prop="factoryNo" label="设备工厂编号" />
-          <el-table-column prop="deviceName" label="设备名称" />
-          <el-table-column prop="acquisitionInterval" label="采集间隔(秒)">
-            <template #default="{ row }">
-              {{ row.acquisitionInterval }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="deviceType" label="设备类型">
-            <template #default="{ row }">
-              {{
-                row.deviceType === 1
-                  ? '火车'
-                  : row.deviceType === 2
-                    ? '铁包'
-                    : row.deviceType === 3
-                      ? '废钢斗'
-                      : row.deviceType === 4
-                        ? '天车'
-                        : '未知'
-              }}
-            </template>
-          </el-table-column>
+          <el-table-column prop="protocolId" min-width="180" label="协议ID" />
+          <el-table-column prop="protocolName" label="协议名称" />
+          <el-table-column prop="protocolType" label="协议类型" />
+          <el-table-column prop="rack" label="机架" />
+          <el-table-column prop="slot" label="插槽" />
+          <el-table-column prop="ipAddress" label="IP地址" />
+          <el-table-column prop="port" label="端口" />
+          <el-table-column prop="connectTimeOut" label="连接超时" />
+          <el-table-column prop="sampleCycle" label="采样周期" />
           <el-table-column prop="description" label="描述" />
-          <el-table-column label="操作" fixed="right">
+          <el-table-column label="操作" min-width="120" fixed="right">
             <template #default="{ row }">
               <el-button
                 class="plain-icon-button"
@@ -118,39 +95,36 @@
       destroy-on-close
     >
       <el-form :model="form" :rules="rules" ref="formRef" inline label-width="120px">
-        <el-form-item label="设备工厂编号" prop="factoryNo">
-          <el-input v-model="form.factoryNo" />
+        <el-form-item label="协议名称" prop="protocolName">
+          <el-input v-model="form.protocolName" />
         </el-form-item>
-        <el-form-item label="设备ID" prop="deviceId" v-if="isEdit">
-          <el-input v-model="form.deviceId" disabled />
-        </el-form-item>
-        <el-form-item label="设备名称" prop="deviceName">
-          <el-input v-model="form.deviceName" />
-        </el-form-item>
-        <el-form-item label="设备类型" prop="deviceType">
-          <el-select v-model="form.deviceType" placeholder="请选择设备类型" clearable>
-            <el-option label="全部" value="''" />
-            <el-option label="火车" :value="1" />
-            <el-option label="铁包" :value="2" />
-            <el-option label="废钢斗" :value="3" />
-            <el-option label="天车" :value="4" />
+        <el-form-item label="协议类型" prop="protocolType">
+          <el-select v-model="form.protocolType" placeholder="请选择协议类型" clearable>
+            <el-option label="S7" value="S7" />
+            <el-option label="OPCUA" value="OPCUA" />
+            <el-option label="MODBUS" value="MODBUS" />
           </el-select>
         </el-form-item>
-        <el-form-item label="协议配置" prop="protocolConfigId">
-          <el-select v-model="form.protocolConfigId" placeholder="请选择协议配置" clearable>
-            <el-option
-              v-for="item in protocolConfigList"
-              :key="item.id"
-              :label="item.protocolName"
-              :value="item.id"
-            />
-          </el-select>
+        <el-form-item label="CPU类型" prop="cpuType">
+          <el-input v-model="form.cpuType" />
         </el-form-item>
-        <el-form-item label="采集间隔" prop="acquisitionInterval">
-          <el-input v-model="form.acquisitionInterval" />
+        <el-form-item label="机架号" prop="rack">
+          <el-input v-model="form.rack" />
         </el-form-item>
-        <el-form-item label="是否启用" prop="isEnabled">
-          <el-switch v-model="form.isEnabled" :active-value="true" :inactive-value="false" />
+        <el-form-item label="插槽号" prop="slot">
+          <el-input v-model="form.slot" />
+        </el-form-item>
+        <el-form-item label="IP地址" prop="ipAddress">
+          <el-input v-model="form.ipAddress" />
+        </el-form-item>
+        <el-form-item label="端口号" prop="port">
+          <el-input v-model="form.port" />
+        </el-form-item>
+        <el-form-item label="超时时间" prop="connectTimeOut">
+          <el-input v-model="form.connectTimeOut" />
+        </el-form-item>
+        <el-form-item label="采样周期" prop="sampleCycle">
+          <el-input v-model="form.sampleCycle" />
         </el-form-item>
         <div>
           <el-form-item label="描述" prop="description">
@@ -170,14 +144,13 @@
 import { onMounted, ref, nextTick, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
-import { getRoleList, addRole, deleteRole, updateRole, getRoleDetail } from '@/api/role'
 import {
-  getDeviceConfigList,
-  addDeviceConfig,
-  updateDeviceConfig,
-  deleteDeviceConfig
-} from '@/api/deviceConfig'
-import { getProtocolConfigList } from '@/api/scada'
+  addProtocolConfig,
+  updateProtocolConfig,
+  deleteProtocolConfig,
+  getProtocolConfigList
+} from '@/api/scada'
+import { getDeviceConfigList } from '@/api/deviceConfig'
 
 import { useTableHeight } from '@/utils/useTableHeight'
 const loading = ref(false)
@@ -192,25 +165,33 @@ const isSubmit = ref(false)
 const isEdit = ref(false)
 // 新增弹窗
 const dialogVisible = ref(false)
+// 设备列表
+const deviceConfigList = ref([])
 // 新增表单
 const form = ref({
-  factoryNo: '',
-  deviceId: '',
-  deviceName: '',
-  deviceType: '',
+  protocolName: '',
+  protocolType: '',
+  cpuType: '',
+  rack: '',
+  slot: '',
+  ipAddress: '',
+  port: '',
+  connectTimeOut: 5000,
+  sampleCycle: '',
   description: '',
-  acquisitionInterval: '',
-  isEnabled: true,
-  protocolConfigId: ''
+  devices: []
 })
 // 新增表单验证规则
 const rules = {
-  factoryNo: [{ required: true, message: '请输入设备工厂编号', trigger: 'blur' }],
-  deviceId: [{ required: true, message: '请输入设备ID', trigger: 'blur' }],
-  deviceName: [{ required: true, message: '请输入设备名称', trigger: 'blur' }],
-  deviceType: [{ required: true, message: '请选择设备类型', trigger: 'change' }],
-  protocolConfigId: [{ required: true, message: '请选择协议配置', trigger: 'change' }],
-  acquisitionInterval: [{ required: true, message: '请输入采集间隔', trigger: 'blur' }]
+  protocolName: [{ required: true, message: '请输入协议名称', trigger: 'blur' }],
+  protocolType: [{ required: true, message: '请选择协议类型', trigger: 'change' }],
+  cpuType: [{ required: true, message: '请选择CPU类型', trigger: 'change' }],
+  rack: [{ required: true, message: '请输入机架号', trigger: 'blur' }],
+  slot: [{ required: true, message: '请输入插槽号', trigger: 'blur' }],
+  ipAddress: [{ required: true, message: '请输入IP地址', trigger: 'blur' }],
+  port: [{ required: true, message: '请输入端口号', trigger: 'blur' }],
+  connectTimeOut: [{ required: true, message: '请输入连接超时时间', trigger: 'blur' }],
+  sampleCycle: [{ required: true, message: '请输入采样周期', trigger: 'blur' }]
 }
 // 新增表单ref
 const formRef = ref(null)
@@ -221,22 +202,24 @@ const searchFormRef = ref(null)
 const searchForm = ref({
   SkipCount: 1,
   MaxResultCount: 20,
-  DeviceId: '',
-  DeviceName: '',
-  DeviceType: ''
+  ProtocolId: '',
+  ProtocolName: ''
 })
 
 // 打开新增弹窗
 const handleAdd = () => {
   form.value = {
-    factoryNo: '',
-    deviceId: '',
-    deviceName: '',
-    deviceType: '',
-    description: '',
-    acquisitionInterval: '',
-    isEnabled: true,
-    protocolConfigId: ''
+    protocolName: '',
+    protocolType: '',
+    cpuType: '',
+    rack: '',
+    slot: '',
+    ipAddress: '',
+    port: '',
+    connectTimeOut: 5000,
+    sampleCycle: '',
+    description: ''
+    // devices: []
   }
   dialogVisible.value = true
 }
@@ -245,24 +228,33 @@ const handleSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       isSubmit.value = true
-      // 编辑角色
+      // 编辑IO配置
       if (isEdit.value) {
         const data = {
           ...form.value
         }
-        await updateDeviceConfig(data)
+        data.connectTimeOut = Number(data.connectTimeOut)
+        data.sampleCycle = Number(data.sampleCycle)
+        data.slot = Number(data.slot)
+        data.port = Number(data.port)
+        data.rack = Number(data.rack)
+        await updateProtocolConfig(data)
         getList()
         handleCancel()
-        ElMessage.success('编辑角色成功')
+        ElMessage.success('编辑成功')
         return
       }
-      // 新增角色
+      // 新增IO配置
       const data = {
-        ...form.value,
-        permissionIds: [],
-        permissionNames: []
+        ...form.value
       }
-      await addDeviceConfig(data)
+      data.connectTimeOut = Number(data.connectTimeOut)
+      data.sampleCycle = Number(data.sampleCycle)
+      data.slot = Number(data.slot)
+      data.port = Number(data.port)
+      data.rack = Number(data.rack)
+
+      await addProtocolConfig(data)
       isSubmit.value = false
       handleCancel()
       getList()
@@ -283,14 +275,17 @@ const handleClose = (done) => {
   dialogVisible.value = false
   isSubmit.value = false
   form.value = {
-    factoryNo: '',
-    deviceId: '',
-    deviceName: '',
-    deviceType: '',
+    protocolName: '',
+    protocolType: '',
+    cpuType: '',
+    rack: '',
+    slot: '',
+    ipAddress: '',
+    port: '',
+    connectTimeOut: 5000,
+    sampleCycle: '',
     description: '',
-    acquisitionInterval: '',
-    isEnabled: true,
-    protocolConfigId: ''
+    devices: []
   }
   done()
 }
@@ -300,25 +295,26 @@ const handleCancel = () => {
   isSubmit.value = false
   dialogVisible.value = false
   form.value = {
-    factoryNo: '',
-    deviceId: '',
-    deviceName: '',
-    deviceType: '',
+    protocolName: '',
+    protocolType: '',
+    cpuType: '',
+    rack: '',
+    slot: '',
+    ipAddress: '',
+    port: '',
+    connectTimeOut: 5000,
+    sampleCycle: '',
     description: '',
-    acquisitionInterval: '',
-    isEnabled: true,
-    protocolConfigId: ''
+    devices: []
   }
 }
-// 获取协议配置列表
-const protocolConfigList = ref([])
-// 获取协议配置列表
-const getProtocolConfigListFun = async () => {
-  let data = await getProtocolConfigList({
+// 获取设备列表
+const getDeviceConfigListFun = async () => {
+  let data = await getDeviceConfigList({
     SkipCount: 0,
-    MaxResultCount: 1000
+    MaxResultCount: 999
   })
-  protocolConfigList.value = data?.items ?? []
+  deviceConfigList.value = data?.items ?? []
 }
 
 const getList = async () => {
@@ -326,19 +322,19 @@ const getList = async () => {
   try {
     await handleSearch()
   } catch (error) {
-    console.error('获取角色列表失败:', error)
+    console.error('获取IO配置列表失败:', error)
   } finally {
     loading.value = false
   }
 }
 const handleDelete = (row) => {
-  ElMessageBox.confirm('确认删除该设备配置吗？', '提示', {
+  ElMessageBox.confirm('确认删除该协议配置吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   })
     .then(async () => {
-      await deleteDeviceConfig({
+      await deleteProtocolConfig({
         id: row.id
       })
       getList()
@@ -352,7 +348,7 @@ const handleSearch = async () => {
     ...searchForm.value,
     SkipCount: (searchForm.value.SkipCount - 1) * searchForm.value.MaxResultCount
   }
-  let data = await getDeviceConfigList(params)
+  let data = await getProtocolConfigList(params)
   tableData.value = data?.items ?? []
   total.value = data?.totalCount ?? 0
 
@@ -382,9 +378,8 @@ const resetSearch = () => {
     searchFormRef.value.resetFields()
   }
   searchForm.value = {
-    DeviceId: '',
-    DeviceName: '',
-    DeviceType: '',
+    ProtocolName: '',
+    ProtocolId: '',
     SkipCount: 1,
     MaxResultCount: 20
   }
@@ -392,8 +387,8 @@ const resetSearch = () => {
 }
 
 onMounted(() => {
-  getProtocolConfigListFun()
   getList()
+  getDeviceConfigListFun()
 })
 </script>
 

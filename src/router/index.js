@@ -104,6 +104,12 @@ export const asyncRoutes = [
         name: 'IOConfig',
         component: () => import('@/views/system/IOConfig/index.vue'),
         meta: { title: 'IO配置', icon: 'Guide', roles: ['admin'] }
+      },
+      {
+        path: '/system/protocolConfig',
+        name: 'ProtocolConfig',
+        component: () => import('@/views/system/protocolConfig/index.vue'),
+        meta: { title: '协议配置', icon: 'Guide', roles: ['admin'] }
       }
     ]
   },
@@ -120,58 +126,6 @@ export const asyncRoutes = [
         meta: { title: '个人中心', icon: 'User' }
       }
     ]
-  },
-  {
-    path: '/test/1',
-    name: 'Test1',
-    component: () => import('@/views/test/index.vue'),
-    meta: { title: '测试1', icon: 'Test', roles: ['admin'] }
-  },
-  {
-    path: '/test/2',
-    name: 'Test2',
-    component: Layout,
-    meta: { title: '测试2', icon: 'Test', roles: ['admin'] },
-    children: [
-      {
-        path: '/test/2/1',
-        name: 'Test21',
-        component: () => import('@/views/test/index.vue'),
-        meta: { title: '测试21', icon: 'Test', roles: ['admin'] }
-      },
-      {
-        path: '/test/2/2',
-        name: 'Test22',
-        component: () => import('@/views/test/index.vue'),
-        meta: { title: '测试22', icon: 'Test', roles: ['admin'] }
-      },
-      {
-        path: '/test/2/3',
-        name: 'Test23',
-        component: () => import('@/views/test/index.vue'),
-        meta: { title: '测试23', icon: 'Test', roles: ['admin'] }
-      }
-    ]
-  },
-  {
-    path: '/test/3',
-    name: 'Test3',
-    component: Layout,
-    meta: { title: '测试3', icon: 'Test', roles: ['admin'] },
-    children: [
-      {
-        path: '/test/3/1',
-        name: 'Test31',
-        component: () => import('@/views/test/index.vue'),
-        meta: { title: '测试31', icon: 'Test', roles: ['admin'] }
-      }
-    ]
-  },
-  {
-    path: '/test/4',
-    name: 'Test4',
-    component: () => import('@/views/test/index.vue'),
-    meta: { title: '测试4', icon: 'Test', roles: ['admin'] }
   }
 ]
 
