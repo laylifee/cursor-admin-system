@@ -110,6 +110,12 @@ export const asyncRoutes = [
         name: 'ProtocolConfig',
         component: () => import('@/views/system/protocolConfig/index.vue'),
         meta: { title: '协议配置', icon: 'Guide', roles: ['admin'] }
+      },
+      {
+        path: '/system/ironTrack',
+        name: 'IronTrack',
+        component: () => import('@/views/system/ironTrack/index.vue'),
+        meta: { title: 'RFID标签管理', icon: 'Guide', roles: ['admin'] }
       }
     ]
   },
