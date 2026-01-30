@@ -1,0 +1,14 @@
+// jsconfig.json（JS Vue项目）
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ESNext",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"] // 适配Vue的@别名跳转（关键）
+    },
+    "jsx": "preserve"
+  },
+  "include": ["src/**/*"], // 索引src下所有文件
+  "exclude": ["node_modules", "dist"]
+}
