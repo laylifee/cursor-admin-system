@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "ESNext",
-    "ignoreDeprecations": "6.0", // 忽略弃用警告
+    "ignoreDeprecations": "5.0", // 忽略弃用警告
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"] // 适配Vue的@别名跳转（关键）
