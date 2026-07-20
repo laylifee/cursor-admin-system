@@ -5,7 +5,7 @@
       <div class="error-404__desc">抱歉，您访问的页面不存在</div>
       <div class="error-404__actions">
         <el-button type="primary" @click="goHome">返回首页</el-button>
-        <el-button @click="goBack">返回上一页</el-button>
+        <!-- <el-button @click="goBack">返回上一页</el-button> -->
         <el-button @click="logout">登出</el-button>
       </div>
       <div class="error-404__info">
