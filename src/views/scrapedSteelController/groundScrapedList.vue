@@ -32,11 +32,21 @@
           <el-button @click="refreshTable">
             <el-icon><Refresh /></el-icon>
           </el-button>
+          <el-button @click="exportData"> 导出 </el-button>
+          <el-button type="primary" :loading="exportAllLoading" @click="exportAllData">
+            导出全部
+          </el-button>
         </div>
       </div>
 
       <div class="table-content">
-        <el-table :data="tableData" style="width: 100%" v-loading="loading" :height="tableHeight">
+        <el-table
+          ref="tableRef"
+          :data="tableData"
+          style="width: 100%"
+          v-loading="loading"
+          :height="tableHeight"
+        >
           <el-table-column prop="bucketNo" label="废钢斗号" />
           <el-table-column prop="startTime" label="开始时间">
             <template #default="{ row }">
@@ -60,7 +70,7 @@
       <div class="pagination-container">
         <el-pagination
           v-model:current-page="searchForm.SkipCount"
-          :page-sizes="[20, 30, 40, 50]"
+          :page-sizes="[200, 300, 400, 500, 1000, 2000]"
           :page-size="searchForm.MaxResultCount"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -73,25 +83,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useTableHeight } from '@/utils/useTableHeight'
 import SearchWrapper from '@/components/SearchWrapper.vue'
 import { useRoute } from 'vue-router'
 import { getGroundScrapedRecordList } from '@/api/scrapedSteelController'
 import dayjs from 'dayjs'
+import { useExportFun } from '@/utils/useExportFun'
 
 const route = useRoute()
+const tableRef = ref(null)
 
 const { tableHeight, calculateTableHeight } = useTableHeight()
 
 const loading = ref(false)
+const exportAllLoading = ref(false)
 const tableData = ref([])
 const total = ref(0)
 
 const searchForm = ref({
   SkipCount: 1,
-  MaxResultCount: 20,
+  MaxResultCount: 200,
   BucketNo: '',
   StartCreationTime: '',
   EndCreationTime: ''
@@ -158,7 +171,47 @@ const refreshTable = () => {
 onMounted(async () => {
   getList()
 })
+
+// 导出当前页数据
+const exportData = () => {
+  const { exportDataFun } = useExportFun(tableRef, tableData, '地面废钢列表数据')
+  exportDataFun()
+}
+
+// 导出全部数据
+const exportAllData = async () => {
+  if (total.value === 0) {
+    ElMessage.warning('当前无数据可导出')
+    return
+  }
+  exportAllLoading.value = true
+  try {
+    const params = {
+      SkipCount: 0,
+      MaxResultCount: total.value,
+      BucketNo: searchForm.value.BucketNo || undefined,
+      StartCreationTime: searchForm.value.StartCreationTime || undefined,
+      EndCreationTime: searchForm.value.EndCreationTime || undefined
+    }
+    const res = await getGroundScrapedRecordList(params)
+    const allData = res?.items ?? []
+    if (allData.length === 0) {
+      ElMessage.warning('当前无数据可导出')
+      return
+    }
+    const originalData = tableData.value
+    tableData.value = allData
+    await nextTick()
+    const { exportDataFun } = useExportFun(tableRef, tableData, '地面废钢列表数据(全部)')
+    exportDataFun()
+    tableData.value = originalData
+  } catch (error) {
+    console.error('导出全部失败:', error)
+    ElMessage.error('导出全部失败')
+  } finally {
+    exportAllLoading.value = false
+  }
+}
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
