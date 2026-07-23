@@ -111,7 +111,12 @@
           <el-input v-model="form.name" placeholder="请输入规则名称" />
         </el-form-item>
         <el-form-item label="上限" prop="upperLimit">
-          <el-input-number style="width: 196px" v-model="form.upperLimit" :precision="2" />
+          <el-input-number
+            style="width: 196px"
+            v-model="form.upperLimit"
+            :step="0.0001"
+            :precision="4"
+          />
         </el-form-item>
         <el-form-item label="数据来源" prop="dataSource">
           <el-select
@@ -131,7 +136,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="下限" prop="lowerLimit">
-          <el-input-number style="width: 196px" v-model="form.lowerLimit" :precision="2" />
+          <el-input-number
+            style="width: 196px"
+            v-model="form.lowerLimit"
+            :step="0.0001"
+            :precision="4"
+          />
         </el-form-item>
         <el-form-item label="数据类型" prop="dataType">
           <el-select
