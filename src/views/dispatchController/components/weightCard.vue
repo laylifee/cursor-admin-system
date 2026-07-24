@@ -11,7 +11,7 @@
         <span class="header-title">{{ title }}</span>
       </div>
       <div class="main-value">
-        <span class="number" id="transit-total">1,280.5</span>
+        <span class="number" id="transit-total">{{ keepDecimalPlaces(number, 2) }}</span>
         <span class="unit">t</span>
       </div>
       <div class="divider"></div>
@@ -20,18 +20,23 @@
 </template>
 <script setup>
 import { ref } from 'vue'
+import { keepDecimalPlaces } from '@/utils/tools'
 
 const props = defineProps({
   style: {
     type: Object,
     default: () => ({
-      top: '380px',
-      left: '20px'
+      top: '280px',
+      left: '0'
     })
   },
   title: {
     type: String,
     default: '在途铁水重量'
+  },
+  number: {
+    type: Number,
+    default: 0
   }
 })
 </script>
