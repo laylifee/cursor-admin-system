@@ -46,10 +46,13 @@
       <div class="table-content">
         <el-table :data="tableData" style="width: 100%" v-loading="loading" :height="tableHeight">
           <el-table-column prop="name" label="钢种牌号" />
-          <el-table-column prop="dataType" label="数据成分" />
-          <!-- <el-table-column prop="dataSource" label="数据来源" /> -->
-          <el-table-column prop="upperLimit" label="上限" />
+          <el-table-column prop="dataType" label="数据成分">
+            <template #default="{ row }">
+              {{ getDataTypeLabel(row.dataType) }}
+            </template>
+          </el-table-column>
           <el-table-column prop="lowerLimit" label="下限" />
+          <el-table-column prop="upperLimit" label="上限" />
           <el-table-column prop="isEnabled" label="启用状态">
             <template #default="{ row }">
               <el-tag :type="row.isEnabled ? 'success' : 'danger'">
@@ -213,7 +216,8 @@ const searchForm = ref({
   Type: '',
   Code: '',
   SkipCount: 1,
-  MaxResultCount: 20
+  MaxResultCount: 20,
+  IsIronComposition: true
 })
 const searchFormRef = ref(null)
 
@@ -298,7 +302,8 @@ const getList = async () => {
       SkipCount: (searchForm.value.SkipCount - 1) * searchForm.value.MaxResultCount,
       MaxResultCount: searchForm.value.MaxResultCount,
       Type: searchForm.value.Type || undefined,
-      Code: searchForm.value.Code || undefined
+      Code: searchForm.value.Code || undefined,
+      IsIronComposition: searchForm.value.IsIronComposition || true
     }
     const res = await getStandardRecordList(params)
     tableData.value = res?.items ?? []
@@ -341,13 +346,18 @@ const handleCurrentChange = (val) => {
   searchForm.value.SkipCount = val
   getList()
 }
-
+// 数据类型转为中文
+const getDataTypeLabel = (val) => {
+  const item = filterTypeList.value.find((o) => o.code === val)
+  return item ? item.name : '-'
+}
 // 重置
 const resetSearch = () => {
   searchFormRef.value?.resetFields()
   searchForm.value.SkipCount = 1
   searchForm.value.Type = ''
   searchForm.value.Code = ''
+  searchForm.value.IsIronComposition = true
   getList()
 }
 

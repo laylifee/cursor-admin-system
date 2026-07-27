@@ -46,10 +46,18 @@
       <div class="table-content">
         <el-table :data="tableData" style="width: 100%" v-loading="loading" :height="tableHeight">
           <el-table-column prop="name" label="规则名称" />
-          <el-table-column prop="dataType" label="数据类型" />
-          <el-table-column prop="dataSource" label="数据来源" />
-          <el-table-column prop="upperLimit" label="上限" />
+          <el-table-column prop="dataType" label="数据类型">
+            <template #default="{ row }">
+              {{ getDataTypeLabel(row.dataType) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="dataSource" label="数据来源">
+            <template #default="{ row }">
+              {{ getDataSourceLabel(row.dataSource) }}
+            </template>
+          </el-table-column>
           <el-table-column prop="lowerLimit" label="下限" />
+          <el-table-column prop="upperLimit" label="上限" />
           <el-table-column prop="severity" label="严重程度">
             <template #default="{ row }">
               {{ getSeverityLabel(row.severity) }}
@@ -219,7 +227,8 @@ const searchForm = ref({
   Type: '',
   Code: '',
   SkipCount: 1,
-  MaxResultCount: 20
+  MaxResultCount: 20,
+  IsIronComposition: false
 })
 const searchFormRef = ref(null)
 
@@ -230,10 +239,21 @@ const severityOptions = ref([
   { label: '严重', value: 3 }
   // { label: '严重', value: 4 }
 ])
-
+// 严重程度转为中文
 const getSeverityLabel = (val) => {
   const item = severityOptions.value.find((o) => o.value === val)
   return item ? item.label : '-'
+}
+
+// 数据类型转为中文
+const getDataTypeLabel = (val) => {
+  const item = filterTypeList.value.find((o) => o.code === val)
+  return item ? item.name : '-'
+}
+// 数据来源转为中文
+const getDataSourceLabel = (val) => {
+  const item = dictItemList.value.find((o) => o.code === val)
+  return item ? item.name : '-'
 }
 // 获取数据类型选项
 const getDataTypeOptions = async (id, isType = false) => {
@@ -304,7 +324,8 @@ const getList = async () => {
       SkipCount: (searchForm.value.SkipCount - 1) * searchForm.value.MaxResultCount,
       MaxResultCount: searchForm.value.MaxResultCount,
       Type: searchForm.value.Type || undefined,
-      Code: searchForm.value.Code || undefined
+      Code: searchForm.value.Code || undefined,
+      IsIronComposition: searchForm.value.IsIronComposition || false
     }
     const res = await getStandardRecordList(params)
     tableData.value = res?.items ?? []
@@ -354,6 +375,7 @@ const resetSearch = () => {
   searchForm.value.SkipCount = 1
   searchForm.value.Type = ''
   searchForm.value.Code = ''
+  searchForm.value.IsIronComposition = false
   getList()
 }
 
@@ -442,8 +464,8 @@ const handleCancel = () => {
 
 // 初始化
 onMounted(async () => {
+  await initFilterTypeList()
   getList()
-  initFilterTypeList()
 })
 </script>
 
