@@ -45,17 +45,11 @@
 
       <div class="table-content">
         <el-table :data="tableData" style="width: 100%" v-loading="loading" :height="tableHeight">
-          <el-table-column prop="name" label="规则名称" />
-          <el-table-column prop="dataType" label="数据类型" />
-          <el-table-column prop="dataSource" label="数据来源" />
+          <el-table-column prop="name" label="钢种牌号" />
+          <el-table-column prop="dataType" label="数据成分" />
+          <!-- <el-table-column prop="dataSource" label="数据来源" /> -->
           <el-table-column prop="upperLimit" label="上限" />
           <el-table-column prop="lowerLimit" label="下限" />
-          <el-table-column prop="severity" label="严重程度">
-            <template #default="{ row }">
-              {{ getSeverityLabel(row.severity) }}
-            </template>
-          </el-table-column>
-          <!-- <el-table-column prop="durationSeconds" label="持续时间(秒)" /> -->
           <el-table-column prop="isEnabled" label="启用状态">
             <template #default="{ row }">
               <el-tag :type="row.isEnabled ? 'success' : 'danger'">
@@ -96,9 +90,9 @@
       </div>
     </div>
 
-    <!-- 规则管理弹窗 -->
+    <!-- 钢种规则管理弹窗 -->
     <el-dialog
-      :title="isEdit ? '编辑规则' : '新增规则'"
+      :title="isEdit ? '编辑钢种规则' : '新增钢种规则'"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       v-model="dialogVisible"
@@ -107,8 +101,8 @@
       :before-close="handleClose"
     >
       <el-form :model="form" :rules="rules" inline ref="formRef" label-width="110px">
-        <el-form-item label="规则名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入规则名称" />
+        <el-form-item label="钢种牌号" prop="name">
+          <el-input v-model="form.name" placeholder="请输入钢种牌号" />
         </el-form-item>
         <el-form-item label="上限" prop="upperLimit">
           <el-input-number
@@ -118,7 +112,23 @@
             :precision="4"
           />
         </el-form-item>
-        <el-form-item label="数据来源" prop="dataSource">
+        <el-form-item label="数据类型" prop="dataType">
+          <el-select
+            style="width: 196px"
+            v-model="form.dataType"
+            placeholder="请选择数据类型"
+            clearable
+            :disabled="isEdit"
+          >
+            <el-option
+              v-for="item in dataTypeList"
+              :key="item.code"
+              :label="item.name"
+              :value="item.code"
+            />
+          </el-select>
+        </el-form-item>
+        <!-- <el-form-item label="数据来源" prop="dataSource">
           <el-select
             style="width: 196px"
             v-model="form.dataSource"
@@ -134,7 +144,7 @@
               :value="item.code"
             />
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="下限" prop="lowerLimit">
           <el-input-number
             style="width: 196px"
@@ -143,27 +153,11 @@
             :precision="4"
           />
         </el-form-item>
-        <el-form-item label="数据类型" prop="dataType">
-          <el-select
-            style="width: 196px"
-            v-model="form.dataType"
-            placeholder="请选择数据类型"
-            clearable
-            :disabled="isEdit"
-            @visible-change="handleDataTypeVisible"
-          >
-            <el-option
-              v-for="item in dataTypeList"
-              :key="item.code"
-              :label="item.name"
-              :value="item.code"
-            />
-          </el-select>
-        </el-form-item>
+
         <!-- <el-form-item label="持续时间(秒)" prop="durationSeconds">
           <el-input-number v-model="form.durationSeconds" :min="0" style="width: 100%" />
         </el-form-item> -->
-        <el-form-item label="严重程度" prop="severity">
+        <!-- <el-form-item label="严重程度" prop="severity">
           <el-select style="width: 196px" v-model="form.severity" placeholder="请选择严重程度">
             <el-option
               v-for="item in severityOptions"
@@ -172,7 +166,7 @@
               :value="item.value"
             />
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="启用状态" prop="isEnabled">
           <el-switch v-model="form.isEnabled" active-text="启用" inactive-text="禁用" />
         </el-form-item>
@@ -292,8 +286,8 @@ const form = ref({
 const formRef = ref(null)
 const rules = {
   name: [{ required: true, message: '请输入规则名称', trigger: 'blur' }],
-  dataType: [{ required: true, message: '请输入数据类型', trigger: 'blur' }],
-  dataSource: [{ required: true, message: '请输入数据来源', trigger: 'blur' }]
+  dataType: [{ required: true, message: '请输入数据类型', trigger: 'blur' }]
+  //   dataSource: [{ required: true, message: '请输入数据来源', trigger: 'blur' }]
 }
 
 // 获取规则列表
@@ -332,7 +326,7 @@ const handleDataSourceChange = (val) => {
   const item = dictItemList.value.find((o) => o.code === val)
   if (item) {
     let id = item?.description
-    getDataTypeOptions(id, true)
+    getDataTypeOptions(22, true)
   }
 }
 
@@ -369,7 +363,7 @@ const handleAdd = () => {
   form.value = {
     name: '',
     dataType: '',
-    dataSource: '',
+    dataSource: 'IronComposition',
     upperLimit: 0,
     lowerLimit: 0,
     severity: 1,
@@ -398,7 +392,11 @@ const handleSubmit = () => {
           await updateStandardRecord(form.value)
           ElMessage.success('编辑规则成功')
         } else {
-          await addStandardRecord(form.value)
+          const params = {
+            ...form.value,
+            dataSource: 'IronComposition'
+          }
+          await addStandardRecord(params)
           ElMessage.success('新增规则成功')
         }
         getList()
@@ -444,6 +442,7 @@ const handleCancel = () => {
 onMounted(async () => {
   getList()
   initFilterTypeList()
+  getDataTypeOptions(22, true)
 })
 </script>
 
